@@ -22,14 +22,15 @@ DEVICE_PACKAGE_OVERLAYS := device/samsung/bcm21553-common/overlay
 # Other
 PRODUCT_PACKAGES += \
     gralloc.bcm21553 \
-    libaudioutils \
-    libtinyalsa \
-    setup_fs \
+    FileManager \
+    SoundRecoder \
+    setup_fs
 
 # Misc other modules
-PRODUCT_PACKAGES += \
-    audio.a2dp.default \
-    audio.usb.default
+#PRODUCT_PACKAGES += \
+#    audio.a2dp.default \
+#    libtinyalsa \
+#    audio.usb.default
 	
 # Video decoding
 PRODUCT_PACKAGES += \
@@ -77,10 +78,10 @@ PRODUCT_COPY_FILES += \
 #    device/samsung/bcm21553-common/prebuilt/root/init.gt-s5360.rc:root/init.gt-s5360.rc
 
 # Media profiles
-PRODUCT_COPY_FILES += \
+#PRODUCT_COPY_FILES += \
 #    device/samsung/bcm21553-common/prebuilt/etc/media_profiles.xml:system/etc/media_profiles.xml
 
-# HW Drivers provided by Broadcom
+# HW Drivers - Software Mode
 PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/lib/egl/libGLES_hgl.so:system/lib/egl/libGLES_hgl.so \
     device/samsung/bcm21553-common/prebuilt/lib/egl/egl.cfg:system/lib/egl/egl.cfg
