@@ -132,5 +132,12 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 
 # NEW ICS properties (may need verification/testing)
 PRODUCT_PROPERTY_OVERRIDES += \
+    ro.config_datause_iface=pdp0 \
+    ro.secure=0 \
+    ro.ril.hsxpa=1 \
+    ro.ril.gprsclass=10 \
+    ro.telephony.ril.v3=icccardstatus,datacall,signalstrength,facilitylock \
+    debug.gr.swapinterval=0 \
     persist.sys.usb.config=mass_storage,adb \
+    sys.usb.config=mass_storage,adb \
     persist.service.adb.enable=1

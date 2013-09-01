@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ifeq ($(TARGET_BOOTLOADER_BOARD_NAME),totoro)
+ifeq ($(TARGET_BOARD_PLATFORM),bcm21553)
 
 LOCAL_PATH := $(call my-dir)
 
@@ -30,8 +30,8 @@ LOCAL_SRC_FILES := 	\
 
 LOCAL_MODULE_TAGS := optional
 	
-LOCAL_MODULE := gralloc.$(TARGET_BOOTLOADER_BOARD_NAME)
-LOCAL_CFLAGS:= -DLOG_TAG=\"$(TARGET_BOOTLOADER_BOARD_NAME).gralloc\"
+LOCAL_MODULE := gralloc.$(TARGET_BOARD_PLATFORM)
+LOCAL_CFLAGS:= -DLOG_TAG=\"$(TARGET_BOARD_PLATFORM).gralloc\"
 
 include $(BUILD_SHARED_LIBRARY)
-endif # TARGET_BOOTLOADER_BOARD_NAME
+endif # TARGET_BOARD_PLATFORM
