@@ -19,9 +19,22 @@ $(call inherit-product-if-exists, vendor/google/gapps.mk)
 # Add device package overlay
 DEVICE_PACKAGE_OVERLAYS := device/samsung/bcm21553-common/overlay
 
+# HW drivers
+PRODUCT_PACKAGES += \
+    audio.primary.goldfish \
+    libGLES_hgl \
+    hwcomposer.bcm21553 \
+    gralloc.bcm21553
+
+# Video decoding
+PRODUCT_PACKAGES += \
+    libstagefrighthw \
+    libopencorehw \
+    libmm-omxcore \
+    libOmxCore \
+
 # Other
 PRODUCT_PACKAGES += \
-    gralloc.bcm21553 \
     FileManager \
     SoundRecoder \
     setup_fs
@@ -31,14 +44,6 @@ PRODUCT_PACKAGES += \
 #    audio.a2dp.default \
 #    libtinyalsa \
 #    audio.usb.default
-	
-# Video decoding
-PRODUCT_PACKAGES += \
-    libstagefrighthw \
-    libopencorehw \
-    libmm-omxcore \
-    libOmxCore
-
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
@@ -56,7 +61,6 @@ PRODUCT_COPY_FILES += \
     frameworks/base/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
 
-   
 # Keylayout
 PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/usr/keylayout/AVRCP.kl:system/usr/keylayout/AVRCP.kl \
@@ -72,18 +76,12 @@ PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/qwerty2.kcm.bin:system/usr/keychars/qwerty2.kcm.bin \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/sec_key.kcm.bin:system/usr/keychars/sec_key.kcm.bin
 
-# Board-specific init
-#PRODUCT_COPY_FILES += \
-#    device/samsung/bcm21553-common/prebuilt/root/ueventd.gt-s5360.rc:root/ueventd.gt-s5360.rc \
-#    device/samsung/bcm21553-common/prebuilt/root/init.gt-s5360.rc:root/init.gt-s5360.rc
-
 # Media profiles
 #PRODUCT_COPY_FILES += \
 #    device/samsung/bcm21553-common/prebuilt/etc/media_profiles.xml:system/etc/media_profiles.xml
 
 # HW Drivers - Software Mode
 PRODUCT_COPY_FILES += \
-    device/samsung/bcm21553-common/prebuilt/lib/egl/libGLES_hgl.so:system/lib/egl/libGLES_hgl.so \
     device/samsung/bcm21553-common/prebuilt/lib/egl/egl.cfg:system/lib/egl/egl.cfg
 
 # WIFI
@@ -127,7 +125,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.kernel.android.checkjni=0 \
     dalvik.vm.checkjni=false
 
-# we have enough storage space to hold precise GC data
+# We have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
 
 # NEW ICS properties (may need verification/testing)
