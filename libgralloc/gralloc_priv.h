@@ -37,13 +37,13 @@ struct private_handle_t;
 struct private_module_t {
     gralloc_module_t base;
 
-    private_handle_t* framebuffer;
+    struct private_handle_t* framebuffer;
     uint32_t flags;
     uint32_t numBuffers;
     uint32_t bufferMask;
     pthread_mutex_t lock;
     buffer_handle_t currentBuffer;
-    int pmem_master;
+    int gemem_master;
     void* pmem_master_base;
 
     struct fb_var_screeninfo info;
@@ -51,6 +51,8 @@ struct private_module_t {
     float xdpi;
     float ydpi;
     float fps;
+    int 	smem_start;
+    int 	vmem_start;
 };
 
 /*****************************************************************************/
@@ -78,8 +80,17 @@ struct private_handle_t {
     int     base;
     int     pid;
 
+    int     p_addr;
+    int     w;
+    int     h;
+    int     format;
+    int	    alignedw;
+    int     alignedh;
+
+    void* handle;
+
 #ifdef __cplusplus
-    static const int sNumInts = 6;
+    static const int sNumInts = 12;
     static const int sNumFds = 1;
     static const int sMagic = 0x3141592;
 

@@ -18,20 +18,20 @@ include $(CLEAR_VARS)
 
 LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
-LOCAL_SHARED_LIBRARIES := liblog libcutils libv3d
-LOCAL_SRC_FILES := gralloc.cpp framebuffer.cpp mapper.cpp
+LOCAL_SHARED_LIBRARIES := liblog libEGL libc libGLESv1_CM libv3d
+LOCAL_SRC_FILES := hwcomposer.cpp
 
 LOCAL_MODULE_TAGS := optional
-	
-LOCAL_MODULE := gralloc.$(TARGET_BOARD_PLATFORM)
-LOCAL_CFLAGS:= -DLOG_TAG=\"gralloc\"
 
-LOCAL_CFLAGS+= -DLCD_PARTIAL_UPDATES_ENABLED=true
+LOCAL_C_INCLUDES += \
+		device/samsung/bcm21553-common/libgralloc \
+		brcm_usrlib/dag/v3d_library/inc \
+		hardware/common/opencore/codec/include 
 
-ifeq ($(BOARD_NO_PAGE_FLIPPING),true)
-	LOCAL_CFLAGS += -DNO_PAGE_FLIPPING
-endif
+LOCAL_CFLAGS += -DDIRECT_RENDERING
 
-LOCAL_C_INCLUDES += brcm_usrlib/dag/v3d_library/inc
+LOCAL_MODULE := hwcomposer.$(TARGET_BOARD_PLATFORM)
+LOCAL_CFLAGS:= -DLOG_TAG=\"hwcomposer\"
+LOCAL_MODULE_TAGS := eng
 
 include $(BUILD_SHARED_LIBRARY)

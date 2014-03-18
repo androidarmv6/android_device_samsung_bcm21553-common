@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ifeq ($(TARGET_BOARD_PLATFORM),bcm21553)
-    ifeq ($(TARGET_BOOTLOADER_BOARD_NAME),cooperve tassve totoro cori)
-        include $(all-subdir-makefiles)
-    endif
+ifeq ($(PRODUCT_MANUFACTURER),Samsung)
+  ifeq ($(TARGET_BOARD_PLATFORM),bcm21553)
+    include $(all-subdir-makefiles)
+  endif
 endif

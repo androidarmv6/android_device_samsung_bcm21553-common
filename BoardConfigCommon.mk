@@ -31,12 +31,15 @@ TARGET_NO_RADIOIMAGE				:= true
 TARGET_PROVIDES_INIT				:= true
 TARGET_PROVIDES_INIT_TARGET_RC			:= true
 
+# Broadcom hardware drivers
+BCM21553_HARDWARE				:= true
+
 # TouchScreen
 BOARD_USE_LEGACY_TOUCHSCREEN			:= true
 
 # Audio
 BOARD_USES_GENERIC_AUDIO			:= false
-HAVE_HTC_AUDIO_DRIVER				:= true
+BOARD_HAVE_SAMSUNG_AUDIO			:= true
 BOARD_USES_ALSA_AUDIO				:= true
 
 # RIL

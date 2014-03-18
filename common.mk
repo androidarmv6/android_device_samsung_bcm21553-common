@@ -12,38 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Most specific first.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 
-# Google Apps
-$(call inherit-product-if-exists, vendor/google/gapps.mk)
+# Inherit from those products. Most specific first.
+$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
 # Add device package overlay
 DEVICE_PACKAGE_OVERLAYS := device/samsung/bcm21553-common/overlay
 
-# HW drivers
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/bcm21553-common/include
+
+## HW drivers
 PRODUCT_PACKAGES += \
-    audio.primary.goldfish \
     libGLES_hgl \
     hwcomposer.bcm21553 \
     gralloc.bcm21553
+
+## Audio
+#PRODUCT_PACKAGES += \
+#    audio.primary.bcm21553 \
+#    audio_policy.bcm21553 \
+#    alsa.bcm21553 \
+#    libtinyalsa \
+#    audio.primary.goldfish \
+#    audio.usb.default \
+#    audio.a2dp.default \
+#    SoundRecoder
 
 # Video decoding
 PRODUCT_PACKAGES += \
     libstagefrighthw \
     libopencorehw \
     libmm-omxcore \
-    libOmxCore \
+    libOmxCore
 
 # Other
 PRODUCT_PACKAGES += \
     FileManager \
-    SoundRecoder \
     setup_fs
-
-# Misc other modules
-#PRODUCT_PACKAGES += \
-#    audio.a2dp.default \
-#    libtinyalsa \
-#    audio.usb.default
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
@@ -80,7 +87,7 @@ PRODUCT_COPY_FILES += \
 #PRODUCT_COPY_FILES += \
 #    device/samsung/bcm21553-common/prebuilt/etc/media_profiles.xml:system/etc/media_profiles.xml
 
-# HW Drivers - Software Mode
+# HW Drivers
 PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/lib/egl/egl.cfg:system/lib/egl/egl.cfg
 

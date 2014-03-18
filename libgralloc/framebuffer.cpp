@@ -43,7 +43,12 @@
 /*****************************************************************************/
 
 // numbers of buffers for page flipping
-#define NUM_BUFFERS 2
+#if defined(NO_PAGE_FLIPPING)
+  // page-flipping is buggy on some devices
+  #define NUM_BUFFERS 1
+#else
+  #define NUM_BUFFERS 2
+#endif
 
 
 enum {
@@ -171,6 +176,21 @@ int mapFrameBufferLocked(struct private_module_t* module)
     info.yoffset = 0;
     info.activate = FB_ACTIVATE_NOW;
 
+#if defined(NO_32BPP)
+    /*
+     * Explicitly request 5/6/5
+     */
+    info.bits_per_pixel = 16;
+    info.red.offset     = 11;
+    info.red.length     = 5;
+    info.green.offset   = 5;
+    info.green.length   = 6;
+    info.blue.offset    = 0;
+    info.blue.length    = 5;
+    info.transp.offset  = 0;
+    info.transp.length  = 0;
+#endif
+
     /*
      * Request NUM_BUFFERS screens (at lest 2 for page flipping)
      */
@@ -284,6 +304,10 @@ int mapFrameBufferLocked(struct private_module_t* module)
         return -errno;
     }
     module->framebuffer->base = intptr_t(vaddr);
+
+    module->smem_start = (int)finfo.smem_start;
+    module->vmem_start = (int)vaddr;
+
     memset(vaddr, 0, fbSize);
     return 0;
 }
@@ -328,7 +352,11 @@ int fb_device_open(hw_module_t const* module, const char* name,
         dev->device.common.close = fb_close;
         dev->device.setSwapInterval = fb_setSwapInterval;
         dev->device.post            = fb_post;
+#if LCD_PARTIAL_UPDATES_ENABLED == true
+        dev->device.setUpdateRect = fb_setUpdateRect;
+#else
         dev->device.setUpdateRect = 0;
+#endif
 
         private_module_t* m = (private_module_t*)module;
         status = mapFrameBuffer(m);
@@ -337,6 +365,9 @@ int fb_device_open(hw_module_t const* module, const char* name,
             int format = (m->info.bits_per_pixel == 32)
                          ? HAL_PIXEL_FORMAT_BGRA_8888
                          : HAL_PIXEL_FORMAT_RGB_565;
+#ifdef NO_32BPP
+            format = HAL_PIXEL_FORMAT_RGB_565;
+#endif
             const_cast<uint32_t&>(dev->device.flags) = 0;
             const_cast<uint32_t&>(dev->device.width) = m->info.xres;
             const_cast<uint32_t&>(dev->device.height) = m->info.yres;
@@ -347,6 +378,8 @@ int fb_device_open(hw_module_t const* module, const char* name,
             const_cast<float&>(dev->device.fps) = m->fps;
             const_cast<int&>(dev->device.minSwapInterval) = 1;
             const_cast<int&>(dev->device.maxSwapInterval) = 1;
+	    const_cast<int&>(dev->device.smem_start) = m->smem_start;
+            const_cast<int&>(dev->device.vmem_start) = m->vmem_start;
             *device = &dev->device.common;
         }
     }
