@@ -30,15 +30,12 @@ PRODUCT_PACKAGES += \
     gralloc.bcm21553
 
 ## Audio
-#PRODUCT_PACKAGES += \
-#    audio.primary.bcm21553 \
-#    audio_policy.bcm21553 \
-#    alsa.bcm21553 \
-#    libtinyalsa \
-#    audio.primary.goldfish \
-#    audio.usb.default \
-#    audio.a2dp.default \
-#    SoundRecoder
+PRODUCT_PACKAGES += \
+    audio.primary.bcm21553 \
+    audio_policy.bcm21553 \
+    libtinyalsa \
+    audio.a2dp.default \
+    libaudioutils
 
 ## Video decoding
 PRODUCT_PACKAGES += \
