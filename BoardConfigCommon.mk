@@ -51,7 +51,6 @@ BOARD_USES_ALSA_AUDIO				:= true
 
 ## RIL
 BOARD_USES_LEGACY_RIL				:= true
-BOARD_FORCE_RILD_AS_ROOT			:= true
 BOARD_MOBILEDATA_INTERFACE_NAME			:= "pdp0"
 
 ## Camera
@@ -72,8 +71,7 @@ WITH_JIT					:= true
 ENABLE_JSC_JIT					:= true
 
 ## USB
-BOARD_USE_USB_MASS_STORAGE_SWITCH 		:= true
-TARGET_USE_CUSTOM_LUN_FILE_PATH 		:= "/sys/devices/lm-2/gadget/lun0/file"
+TARGET_USE_CUSTOM_LUN_FILE_PATH 		:= /sys/devices/lm-2/gadget/lun0/file
 BOARD_UMS_LUNFILE 				:= "/sys/devices/lm-2/gadget/lun0/file"
 
 ## Wifi
@@ -84,6 +82,7 @@ WIFI_DRIVER_FW_STA_PATH				:= "/system/etc/wifi/bcm4330_sta.bin"
 WIFI_DRIVER_FW_AP_PATH				:= "/system/etc/wifi/bcm4330_aps.bin"
 WIFI_DRIVER_MODULE_ARG				:= "firmware_path=/system/etc/wifi/bcm4330_sta.bin nvram_path=/system/etc/wifi/nvram.txt"
 WIFI_DRIVER_MODULE_NAME				:= "bcm4330"
+BOARD_HAVE_SAMSUNG_WIFI				:= true
 
 ## Wi-Fi Hotspot
 BOARD_HAVE_LEGACY_HOSTAPD			:= true
