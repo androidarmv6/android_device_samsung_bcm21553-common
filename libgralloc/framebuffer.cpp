@@ -378,7 +378,7 @@ int fb_device_open(hw_module_t const* module, const char* name,
             const_cast<float&>(dev->device.fps) = m->fps;
             const_cast<int&>(dev->device.minSwapInterval) = 1;
             const_cast<int&>(dev->device.maxSwapInterval) = 1;
-	    const_cast<int&>(dev->device.smem_start) = m->smem_start;
+	        const_cast<int&>(dev->device.smem_start) = m->smem_start;
             const_cast<int&>(dev->device.vmem_start) = m->vmem_start;
             *device = &dev->device.common;
         }
