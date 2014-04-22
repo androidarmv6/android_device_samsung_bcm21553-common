@@ -1,0 +1,39 @@
+on init
+
+# create device mountpoints
+    mkdir /mnt/.lfs 0755 root root
+    mkdir /efs 0771 radio system
+
+# create temp folder for nv
+    mkdir /dev/radionv
+    chown radio system /dev/radionv
+    chmod 0770 /dev/radionv
+
+# load FSR module
+    insmod /lib/modules/fsr.ko
+    insmod /lib/modules/fsr_stl.ko
+
+# load RFS module
+    insmod /lib/modules/rfs_glue.ko
+    insmod /lib/modules/rfs_fat.ko
+
+# load J4FS module
+    insmod /lib/modules/j4fs.ko
+
+on boot
+    setprop ro.radio.noril yes
+
+# fake some battery state
+    setprop status.battery.state Slow
+    setprop status.battery.level 5
+    setprop status.battery.level_raw  50
+    setprop status.battery.level_scale 9
+
+on fs
+
+# mount device partitions
+    mount j4fs /dev/stl6 /mnt/.lfs
+    mount rfs /dev/stl12 /efs nosuid nodev check=no
+    mount ext4 /dev/stl9 /system wait rw noatime nodiratime noauto_da_alloc
+    mount ext4 /dev/stl10 /cache wait nosuid nodev noatime nodiratime noauto_da_alloc
+    mount ext4 /dev/stl11 /data wait nosuid nodev noatime nodiratime noauto_da_alloc

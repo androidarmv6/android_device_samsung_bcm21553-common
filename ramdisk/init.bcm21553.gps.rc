@@ -1,0 +1,30 @@
+on boot
+
+    chown gps system /dev/ttyS2
+
+    write /sys/class/gpio/export 56
+    chown gps system /sys/class/gpio/gpio56/value
+    chown gps system /sys/class/gpio/gpio56/direction
+    write /sys/class/gpio/gpio56/value 0
+    write /sys/class/gpio/gpio56/direction out
+
+    write /sys/class/gpio/export 23
+    chown gps system /sys/class/gpio/gpio23/value
+    chown gps system /sys/class/gpio/gpio23/direction
+    write /sys/class/gpio/gpio23/value 0
+    write /sys/class/gpio/gpio23/direction out
+    chown gps system /data/gps/glgpsctrl
+    chown gps system /dev/bcm_gps
+    chown gps system /dev/bcm_cntin
+
+# Define broadcom gps properties 
+    setprop gps.fd.block "false"
+
+service gpsd /system/bin/glgps -c /system/etc/gps/glconfig4751.xml
+    class main
+    user gps
+    group system sdcard_rw inet net_raw
+    disabled
+
+on property:init.svc.bootanim=stopped
+    start gpsd

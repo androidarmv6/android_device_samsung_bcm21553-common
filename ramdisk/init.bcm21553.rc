@@ -1,0 +1,180 @@
+import init.bcm21553.usb.rc
+import init.bcm21553.wifi.rc
+import init.bcm21553.gps.rc
+import init.tassve.sensors.rc
+import init.cooperve.sensors.rc
+import init.totoro.sensors.rc
+
+on init
+
+# create device mountpoints
+    mkdir /mnt/.lfs 0755 root root
+    mkdir /efs 0771 radio system
+
+# create temp folder for nv
+    mkdir /dev/radionv
+    chown radio system /dev/radionv
+    chmod 0770 /dev/radionv
+
+# load FSR module
+    insmod /lib/modules/fsr.ko
+    insmod /lib/modules/fsr_stl.ko
+
+# load RFS module
+    insmod /lib/modules/rfs_glue.ko
+    insmod /lib/modules/rfs_fat.ko
+
+# load J4FS module
+    insmod /lib/modules/j4fs.ko
+
+on boot
+    setprop ro.radio.noril yes
+
+# fake some battery state
+    setprop status.battery.state Slow
+    setprop status.battery.level 5
+    setprop status.battery.level_raw  50
+    setprop status.battery.level_scale 9
+
+on fs
+
+# mount device partitions
+    mount j4fs /dev/stl6 /mnt/.lfs
+    mount rfs /dev/stl12 /efs nosuid nodev check=no
+    mount ext4 /dev/stl9 /system wait rw noatime nodiratime noauto_da_alloc
+    mount ext4 /dev/stl10 /cache wait nosuid nodev noatime nodiratime noauto_da_alloc
+    mount ext4 /dev/stl11 /data wait nosuid nodev noatime nodiratime noauto_da_alloc
+
+    # download cache
+    mkdir /data/download 0770 system cache
+
+    chown root system /dev/mmc328x
+    chown root system /dev/ecompass_ctrl
+    chown root system /dev/bma222
+    chown root system /dev/proximity
+    
+    chmod 0660 /dev/mmc328x
+    chmod 0660 /dev/ecompass_ctrl
+    chmod 0660 /dev/bma222
+    chmod 0660 /dev/proximity
+
+    chown system system /sys/class/input/input0/enable
+    chown system system /sys/class/input/input0/poll_delay
+    chmod 0660 /sys/class/input/input0/enable
+    chmod 0660 /sys/class/input/input0/poll_delay
+
+    chown system system /sys/class/backlight/aat1401-backlight/brightness
+    chown system system /sys/class/backlight/pwm-keypad-backlight.0/brightness
+
+    chmod 0777 /dev/bcm_kril
+    chmod 0777 /dev/bcm_vsp
+    chmod 0660 /dev/bcm_atc
+    chown system system /dev/bcm_kpdp
+    chown shell system /dev/bcm_atc
+    chmod 0660 /dev/bcm_alsa_voip
+    chown radio system /dev/bcm_alsa_voip
+    chmod 0666 /dev/v3d
+
+    insmod /system/lib/modules/memalloc.ko
+    insmod /system/lib/modules/hx170dec.ko
+    insmod /system/lib/modules/h6270enc.ko
+    insmod /system/lib/modules/gememalloc.ko    
+    insmod /system/lib/modules/ge_drv.ko   
+    insmod /system/lib/modules/brcm_switch.ko
+    insmod /system/lib/modules/bcm_headsetsw.ko
+
+    chmod 0777 /dev/camera
+    chown system system /sys/bcm/cache
+    chmod 0771 /dev/ttyGS0
+    chown system system /dev/ttyGS0
+    chown system system /dev/ttyS0
+
+    chown system system /sys/module/bcm215xx_pm/parameters/debug
+
+# permisssion for cacheops
+    chmod 0666 /dev/cache-ops
+    
+# for bluetooth. change access rights as btld runs as bluetooth user
+    chown root bluetooth /dev/ttyS1
+    chmod 0660 /dev/ttyS1
+    chown root bluetooth /sys/class/rfkill/rfkill0
+    chown root bluetooth /sys/class/rfkill/rfkill0/state
+    chown root bluetooth /sys/class/rfkill/rfkill0/claim
+    chown root bluetooth /sys/class/rfkill/rfkill0/soft
+    chmod 0664 /sys/class/rfkill/rfkill0/state
+    chmod 0664 /sys/class/rfkill/rfkill0/claim
+    chmod 0664 /sys/class/rfkill/rfkill0/soft
+    chown root bluetooth /sys/class/sound/controlC0/FMDirectPlay
+    chmod 0664 /sys/class/sound/controlC0/FMDirectPlay
+    chown root net_bt_admin /sys/devices/system/cpu/cpufreq/bcm21553/dvfs
+    chmod 0664 /sys/devices/system/cpu/cpufreq/bcm21553/dvfs
+    chmod 0777 /dev/pmem_adsp
+
+# bcm audio loopback test mode.
+    chmod 0666 /dev/bcm_alsa_pcg
+    chmod 0666 /dev/bcm_log
+    chmod 0666 /dev/bcm_audio_log
+
+# Force Power Down
+    chmod 0660 /sys/class/sec/pm/power_down
+    chown root system /sys/class/sec/pm/power_down
+
+# CPU Governor
+    chmod 0660 /sys/class/sec/cpu/cpu_gov
+    chown root system /sys/class/sec/cpu/cpu_gov
+    
+# Sensors permissions
+
+# proximity
+    chown system input /sys/class/input/input0/enable
+    chown system input /sys/class/input/input0/delay
+    chown system input /sys/class/input/input0/wake
+
+# accelerometer
+    chown system input /sys/class/input/input3/enable
+    chown system input /sys/class/input/input3/delay
+    chown system input /sys/class/input/input3/wake
+
+# geomagnetic
+    chown system input /sys/class/input/input1/enable
+    chown system input /sys/class/input/input1/delay
+    chown system input /sys/class/input/input1/wake
+
+# geomagnetic_raw
+    chown compass input /sys/class/input/input2/offsets
+
+# orientation
+    chown system input /sys/class/input/input4/enable
+    chown system input /sys/class/input/input4/delay
+    chown system input /sys/class/input/input4/wake
+
+# waketime CSP461560
+    chown radio system /sys/module/bcm_fuse_net/parameters/pdp_waketime
+
+service bdaddr /system/bin/bdaddr_read
+    class main
+    user root
+    disabled
+    oneshot
+
+on property:init.svc.bootanim=running
+    start bdaddr
+
+service hciattach /system/bin/brcm_patchram_plus --enable_hci --enable_lpm \
+    --baudrate 3000000 --patchram /system/bin/BCM4330B1_002.001.003.0609.0615.hcd /dev/ttyS1
+    class main
+    user bluetooth
+    group bluetooth net_bt_admin
+    disabled
+    oneshot
+
+service get_macaddrs /system/bin/get_macaddrs
+    class main
+    user root
+    oneshot
+
+# Accelerometer Service
+service memsicd /system/bin/memsicd
+    user system
+    group system    
+    oneshot
