@@ -319,7 +319,6 @@ static int hwc_set(hwc_composer_device_t *dev,
         if(t1.tv_sec == ctx->logtime) {
 			ctx->ucount++;
 			} else {
-			LOGE("FrameBuffer [%d] reloads", ctx->ucount);
 			ctx->ucount = 1;
 			ctx->logtime = t1.tv_sec;
 			}
@@ -366,11 +365,11 @@ static int hwc_device_open(const struct hw_module_t* module, const char* name,
         dev->device.prepare = hwc_prepare;
         dev->device.set = hwc_set;
 
-	dev->local_composer = GhwComposer::create();
-	dev->useComposer = true;
+	    dev->local_composer = GhwComposer::create();
+	    dev->useComposer = true;
  
     	dev->logtime =0;
-	dev->ucount =0;
+	    dev->ucount =0;
 
         *device = &dev->device.common;
         status = 0;
