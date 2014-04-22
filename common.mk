@@ -12,24 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Most specific first.
-$(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
-
-# Inherit from those products. Most specific first.
-$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
-
-# Add device package overlay
-DEVICE_PACKAGE_OVERLAYS := device/samsung/bcm21553-common/overlay
+# Add common package overlay
+DEVICE_PACKAGE_OVERLAYS += device/samsung/bcm21553-common/overlay
 
 TARGET_SPECIFIC_HEADER_PATH := device/samsung/bcm21553-common/include
 
-## HW drivers
+# These are the hardware-specific configuration files
+PRODUCT_COPY_FILES := \
+    device/samsung/bcm21553-common/prebuilt/etc/vold.fstab:system/etc/vold.fstab \
+    device/samsung/bcm21553-common/prebuilt/etc/bluetooth/main.conf:system/etc/bluetooth/main.conf
+
+# Init files
+PRODUCT_COPY_FILES += \
+    device/samsung/bcm21553-common/ramdisk/init.rc:root/init.rc \
+    device/samsung/bcm21553-common/ramdisk/init.bcm21553.rc:root/init.bcm21553.rc \
+    device/samsung/bcm21553-common/ramdisk/init.bcm21553.gps.rc:root/init.bcm21553.gps.rc \
+    device/samsung/bcm21553-common/ramdisk/init.bcm21553.wifi.rc:root/init.bcm21553.wifi.rc \
+    device/samsung/bcm21553-common/ramdisk/init.bcm21553.usb.rc:root/init.bcm21553.usb.rc \
+    device/samsung/bcm21553-common/ramdisk/init.charge.rc:root/init.charge.rc \
+    device/samsung/bcm21553-common/ramdisk/ueventd.bcm21553.rc:root/ueventd.bcm21553.rc \
+    device/samsung/bcm21553-common/ramdisk/init:root/init \
+    device/samsung/bcm21553-common/ramdisk/adbd:root/sbin/adbd \
+    device/samsung/bcm21553-common/ramdisk/init.bcm21553.usb.rc:recovery/root/usb.rc \
+    device/samsung/bcm21553-common/ramdisk/init.bcm21553.fs.rc:recovery/root/fs.rc \
+    device/samsung/bcm21553-common/ramdisk/init:recovery/root/init \
+    device/samsung/bcm21553-common/ramdisk/adbd:recovery/root/sbin/adbd
+
+# HW drivers
 PRODUCT_PACKAGES += \
     libGLES_hgl \
     hwcomposer.bcm21553 \
     gralloc.bcm21553
 
-## Audio
+# Audio
 PRODUCT_PACKAGES += \
     audio.primary.bcm21553 \
     audio_policy.bcm21553 \
@@ -37,35 +52,45 @@ PRODUCT_PACKAGES += \
     audio.a2dp.default \
     libaudioutils
 
-## Video decoding
+# Video decoding
 PRODUCT_PACKAGES += \
     libstagefrighthw \
     libopencorehw \
     libmm-omxcore \
     libOmxCore
 
-## Other
+# Other
 PRODUCT_PACKAGES += \
-    FileManager \
+    CMFileManager \
+    make_ext4fs \
     setup_fs
 
-## These are the hardware-specific features
+# Device-specific packages
+PRODUCT_PACKAGES += \
+    SamsungServiceMode
+
+# Usb accessory
+PRODUCT_PACKAGES += \
+    com.android.future.usb.accessory
+
+# These are the hardware-specific features
 PRODUCT_COPY_FILES += \
     frameworks/base/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
-    frameworks/base/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
     frameworks/base/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
     frameworks/base/data/etc/android.hardware.location.xml:system/etc/permissions/android.hardware.location.xml \
-    frameworks/base/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
+    frameworks/base/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
+    frameworks/base/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.sensor.compass.xml \
     frameworks/base/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
-    frameworks/base/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
-    frameworks/base/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
-    frameworks/base/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
-    frameworks/base/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml \
+    frameworks/base/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
+    frameworks/base/data/etc/android.hardware.touchscreen.multitouch.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.xml \
+    frameworks/base/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.distinct.xml \
+    frameworks/base/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
+    frameworks/base/data/etc/android.software.sip.xml:system/etc/permissions/android.software.sip.xml \
     frameworks/base/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
     frameworks/base/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
 
-## Keylayout
+# Keylayout
 PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/usr/keylayout/AVRCP.kl:system/usr/keylayout/AVRCP.kl \
     device/samsung/bcm21553-common/prebuilt/usr/keylayout/bcm_headset.kl:system/usr/keylayout/bcm_headset.kl \
@@ -74,54 +99,102 @@ PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/usr/keylayout/sec_key.kl:system/usr/keylayout/sec_key.kl \
     device/samsung/bcm21553-common/prebuilt/usr/keylayout/sec_keypad.kl:system/usr/keylayout/sec_keypad.kl
 
-## Keychars
+# Keychars
 PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/qwerty.kcm.bin:system/usr/keychars/qwerty.kcm.bin \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/qwerty2.kcm.bin:system/usr/keychars/qwerty2.kcm.bin \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/sec_key.kcm.bin:system/usr/keychars/sec_key.kcm.bin
 
-## Media
+# Media
 #PRODUCT_COPY_FILES += \
 #    device/samsung/bcm21553-common/prebuilt/etc/media_profiles.xml:system/etc/media_profiles.xml
 #    device/samsung/bcm21553-common/prebuilt/etc/asound.conf:system/etc/asound.conf
 
-## HW Drivers
-PRODUCT_COPY_FILES += \
-    device/samsung/bcm21553-common/prebuilt/lib/egl/egl.cfg:system/lib/egl/egl.cfg
-
-## WIFI
+# WIFI
 PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/etc/wifi/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
     device/samsung/bcm21553-common/prebuilt/bin/get_macaddrs:system/bin/get_macaddrs
 
-## Graphics properties
+# The OpenGL ES API level that is natively supported by this device.
+# This is a 16.16 fixed point number
+PRODUCT_PROPERTY_OVERRIDES := \
+    ro.opengles.version=131072
+
+# Graphics properties
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.sf.hw=1 \
     debug.enabletr=false \
-    debug.composition.type=mdp \
+    debug.composition.type=gpu \
     debug.gr.numframebuffers=2 \
-    debug.qctwa.statusbar=1 \
-    debug.qctwa.preservebuf=1 \
-    debug.performance.tuning=1 \
     hwui.render_dirty_regions=false \
     hwui.disable_vsync=true \
     hwui.print_config=choice \
     persist.sys.strictmode.visual=false \
-    persist.sys.use_dithering=1
+    persist.sys.use_16bpp_alpha=1 \
+    persist.sys.use_dithering=0
 
+# Misc. Tweaks
 PRODUCT_PROPERTY_OVERRIDES += \
-    video.accelerate.hw=1 \
+    ro.lge.proximity.delay=25 \
+    mot.proximity.delay=25 \
     media.stagefright.enable-player=true \
-    media.stagefright.enable-meta=false \
-    media.stagefright.enable-scan=false \
-    media.stagefright.enable-http=true \
-    media.stagefright.enable-aac=true \
-    media.stagefright.enable-qcp=true
+    media.stagefright.enable-meta=true \
+    media.stagefright.enable-scan=true \
+    media.stagefright.enable-http=false \
+    media.stagefright.enable-record=true
 
-## Samsung RIL
+# Dalvik
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.telephony.ril_class=SamsungRIL \
+    dalvik.vm.heapstartsize=5m \
+    dalvik.vm.heapgrowthlimit=36m \
+    dalvik.vm.heapsize=64m \
+    dalvik.vm.execution-mode=int:jit \
+    dalvik.vm.verify-bytecode=false \
+    dalvik.vm.dexopt-data-only=1
+
+# RIL
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.telephony.default_network=0 \
+    ro.ril.hsxpa=1 \
+    ro.ril.gprsclass=10 \
+    ro.telephony.call_ring.delay=0 \
+    ro.ril.disable.power.collapse=0
+
+# Wifi interface
+PRODUCT_PROPERTY_OVERRIDES += \
+    wifi.supplicant_scan_interval=15
+
+# USB / SD card
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.usb.config=adb,mass_storage \
+    persist.service.adb.enable=1 \
+    ro.vold.umsdirtyratio=20
+
+# Memory
+PRODUCT_PROPERTY_OVERRIDES += \
+    sys.mem.max_hidden_apps=5 \
+    ro.HOME_APP_ADJ=1
+
+# Extended JNI checks
+# The extended JNI checks will cause the system to run more slowly, but they can spot a variety of nasty bugs 
+# before they have a chance to cause problems.
+# Default=true for development builds, set by android buildsystem.
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.kernel.android.checkjni=0 \
+    dalvik.vm.checkjni=false
+
+# These are the hardware-specific settings that are stored in system properties.
+# Note that the only such settings should be the ones that are too low-level to
+# be reachable from resources or other mechanisms.
+PRODUCT_PROPERTY_OVERRIDES += \
+    wifi.interface=eth0 \
     mobiledata.interfaces=pdp0,eth0,gprs,ppp0
 
-## We have enough storage space to hold precise GC data
+# enable Google-specific location features,
+# like NetworkLocationProvider and LocationCollector
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.com.google.locationfeatures=1 \
+    ro.com.google.networklocation=1
+
+# We have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
