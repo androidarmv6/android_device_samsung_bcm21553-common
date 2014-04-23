@@ -148,7 +148,7 @@ void AudioHardware::loadRILD(void)
     mSecRilLibHandle = dlopen("libbrcm_ril.so", RTLD_NOW);
 
     if (mSecRilLibHandle) {
-        LOGV("libsecril-client.so is loaded");
+        LOGV("libbrcm_ril.so is loaded");
 
         openClientRILD   = (HRilClient (*)(void))
                               dlsym(mSecRilLibHandle, "OpenClient_RILD");
@@ -170,7 +170,7 @@ void AudioHardware::loadRILD(void)
         if (!openClientRILD  || !disconnectRILD   || !closeClientRILD ||
             !isConnectedRILD || !connectRILD      ||
             !setCallVolume   || !setCallAudioPath || !setCallClockSync) {
-            LOGE("Can't load all functions from libsecril-client.so");
+            LOGE("Can't load all functions from libbrcm_ril.so");
 
             dlclose(mSecRilLibHandle);
             mSecRilLibHandle = NULL;
@@ -184,7 +184,7 @@ void AudioHardware::loadRILD(void)
             }
         }
     } else {
-        LOGE("Can't load libsecril-client.so");
+        LOGE("Can't load libbrcm_ril.so");
     }
 }
 
