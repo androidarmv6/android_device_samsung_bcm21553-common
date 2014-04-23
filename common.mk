@@ -130,7 +130,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     hwui.disable_vsync=true \
     hwui.print_config=choice \
     persist.sys.strictmode.visual=false \
-    persist.sys.use_16bpp_alpha=1 \
     persist.sys.use_dithering=0
 
 # Misc. Tweaks
