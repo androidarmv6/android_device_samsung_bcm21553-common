@@ -65,7 +65,7 @@ BOARD_MOBILEDATA_INTERFACE_NAME := "pdp0"
 USE_CAMERA_STUB := true
 BOARD_V4L2_DEVICE := /dev/video2
 BOARD_CAMERA_DEVICE := /dev/video0
-BOARD_USE_JPEG  := true
+BOARD_USE_JPEG := true
 
 # GPU Stuff
 BOARD_EGL_CFG := brcm_usrlib/dag/vmcsx/egl.cfg
@@ -108,7 +108,7 @@ HTTP := chrome
 WITH_JIT := true
 ENABLE_JSC_JIT := true
 TARGET_WEBKIT_USE_MORE_MEMORY := true
-#TARGET_FORCE_CPU_UPLOAD := true
+TARGET_FORCE_CPU_UPLOAD := true
 
 # FM
 #BOARD_HAVE_FM_RADIO := true
