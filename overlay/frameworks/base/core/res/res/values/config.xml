@@ -18,11 +18,14 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+    <!-- Flag indicating whether the surface flinger has limited
+         alpha compositing functionality in hardware.  If set, the window
+         manager will disable alpha trasformation in animations where not
+         strictly needed. -->
+    <bool name="config_sf_limitedAlpha">true</bool>
+
     <!-- Enables or disables fading edges when marquee is enabled in TextView. -->
     <bool name="config_ui_enableFadingMarquee">false</bool>
-
-    <!-- videocoreiv doesn't handle this blur effect very quickly. -->
-    <bool name="config_sf_slowBlur">true</bool>
 
     <!-- This string array should be overridden by the device to present a list of network
          attributes. This is used by the connectivity manager to decide which networks can coexist
