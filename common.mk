@@ -125,8 +125,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     debug.sf.hw=1 \
     debug.enabletr=false \
     debug.composition.type=gpu \
-    debug.gr.numframebuffers=2 \
-    hwui.render_dirty_regions=false \
+    hwui.render_dirty_regions=true \
     hwui.disable_vsync=true \
     hwui.print_config=choice \
     persist.sys.strictmode.visual=false \
@@ -148,8 +147,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.heapgrowthlimit=36m \
     dalvik.vm.heapsize=64m \
     dalvik.vm.execution-mode=int:jit \
-    dalvik.vm.verify-bytecode=false \
-    dalvik.vm.dexopt-data-only=1
+    dalvik.vm.debug.alloc=0 \
+    dalvik.vm.dexopt-data-only=1 \
+    dalvik.vm.dexopt-flags=v=a,o=v,m=y,u=y
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -171,7 +171,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Memory
 PRODUCT_PROPERTY_OVERRIDES += \
-    sys.mem.max_hidden_apps=5 \
     ro.HOME_APP_ADJ=1
 
 # Extended JNI checks
@@ -179,8 +178,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # before they have a chance to cause problems.
 # Default=true for development builds, set by android buildsystem.
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.kernel.android.checkjni=0 \
-    dalvik.vm.checkjni=false
+    dalvik.vm.checkjni=false \
+    ro.kernel.android.checkjni=0
 
 # These are the hardware-specific settings that are stored in system properties.
 # Note that the only such settings should be the ones that are too low-level to
