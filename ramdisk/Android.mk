@@ -84,6 +84,17 @@ LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
 include $(BUILD_PREBUILT)
 
 #######################################
+# lpm.rc
+
+include $(CLEAR_VARS)
+LOCAL_MODULE		:= lpm.rc
+LOCAL_MODULE_TAGS	:= optional
+LOCAL_MODULE_CLASS	:= ETC
+LOCAL_SRC_FILES		:= lpm.bcm21553.rc
+LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
+include $(BUILD_PREBUILT)
+
+#######################################
 # ueventd.gt-xxxxx.rc
 
 include $(CLEAR_VARS)
