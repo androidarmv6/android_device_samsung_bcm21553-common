@@ -144,3 +144,11 @@ service memsicd /system/bin/memsicd
     user system
     group system    
     oneshot
+
+service charging /system/bin/playlpm
+    class charger
+
+service lpmkey /system/bin/charging_mode
+    class charger
+    user root
+    oneshot
