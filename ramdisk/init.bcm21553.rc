@@ -1,49 +1,27 @@
+import init.bcm21553.fs.rc
+import init.bcm21553.gps.rc
+import init.bcm21553.sensors.rc
 import init.bcm21553.usb.rc
 import init.bcm21553.wifi.rc
-import init.bcm21553.gps.rc
-import init.tassve.sensors.rc
-import init.cooperve.sensors.rc
-import init.totoro.sensors.rc
 
 on init
 
-# create device mountpoints
-    mkdir /mnt/.lfs 0755 root root
-    mkdir /efs 0771 radio system
+    # sdcard
+    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
+    mkdir /storage/sdcard0 0700 root root
 
-# create temp folder for nv
-    mkdir /dev/radionv
-    chown radio system /dev/radionv
-    chmod 0770 /dev/radionv
+    symlink /storage/sdcard0 /mnt/sdcard
+    symlink /storage/sdcard0 /sdcard
+    export EXTERNAL_STORAGE /storage/sdcard0
 
-# load FSR module
-    insmod /lib/modules/fsr.ko
-    insmod /lib/modules/fsr_stl.ko
-
-# load RFS module
-    insmod /lib/modules/rfs_glue.ko
-    insmod /lib/modules/rfs_fat.ko
-
-# load J4FS module
-    insmod /lib/modules/j4fs.ko
-
-on boot
-    setprop ro.radio.noril yes
-
-# fake some battery state
-    setprop status.battery.state Slow
-    setprop status.battery.level 5
-    setprop status.battery.level_raw  50
-    setprop status.battery.level_scale 9
+    # sd-ext
+    mkdir /sd-ext 0771 system system
+    export SD_EXT_DIRECTORY /sd-ext
 
 on fs
 
 # mount device partitions
-    mount j4fs /dev/stl6 /mnt/.lfs
-    mount rfs /dev/stl12 /efs nosuid nodev check=no
-    mount ext4 /dev/stl9 /system wait rw noatime nodiratime noauto_da_alloc
-    mount ext4 /dev/stl10 /cache wait nosuid nodev noatime nodiratime noauto_da_alloc
-    mount ext4 /dev/stl11 /data wait nosuid nodev noatime nodiratime noauto_da_alloc
+    mount_all /fstab.bcm21553
 
     # download cache
     mkdir /data/download 0770 system cache
@@ -74,14 +52,6 @@ on fs
     chmod 0660 /dev/bcm_alsa_voip
     chown radio system /dev/bcm_alsa_voip
     chmod 0666 /dev/v3d
-
-    insmod /system/lib/modules/memalloc.ko
-    insmod /system/lib/modules/hx170dec.ko
-    insmod /system/lib/modules/h6270enc.ko
-    insmod /system/lib/modules/gememalloc.ko    
-    insmod /system/lib/modules/ge_drv.ko   
-    insmod /system/lib/modules/brcm_switch.ko
-    insmod /system/lib/modules/bcm_headsetsw.ko
 
     chmod 0777 /dev/camera
     chown system system /sys/bcm/cache
@@ -160,13 +130,9 @@ service bdaddr /system/bin/bdaddr_read
 on property:init.svc.bootanim=running
     start bdaddr
 
-service hciattach /system/bin/brcm_patchram_plus --enable_hci --enable_lpm \
-    --baudrate 3000000 --patchram /system/bin/BCM4330B1_002.001.003.0609.0615.hcd /dev/ttyS1
-    class main
-    user bluetooth
-    group bluetooth net_bt_admin
+service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
+    class late_start
     disabled
-    oneshot
 
 service get_macaddrs /system/bin/get_macaddrs
     class main

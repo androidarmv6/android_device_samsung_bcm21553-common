@@ -20,20 +20,10 @@ on init
 # load J4FS module
     insmod /lib/modules/j4fs.ko
 
-on boot
-    setprop ro.radio.noril yes
-
-# fake some battery state
-    setprop status.battery.state Slow
-    setprop status.battery.level 5
-    setprop status.battery.level_raw  50
-    setprop status.battery.level_scale 9
-
-on fs
-
-# mount device partitions
-    mount j4fs /dev/stl6 /mnt/.lfs
-    mount rfs /dev/stl12 /efs nosuid nodev check=no
-    mount ext4 /dev/stl9 /system wait rw noatime nodiratime noauto_da_alloc
-    mount ext4 /dev/stl10 /cache wait nosuid nodev noatime nodiratime noauto_da_alloc
-    mount ext4 /dev/stl11 /data wait nosuid nodev noatime nodiratime noauto_da_alloc
+    insmod /lib/modules/memalloc.ko
+    insmod /lib/modules/hx170dec.ko
+    insmod /lib/modules/h6270enc.ko
+    insmod /lib/modules/gememalloc.ko    
+    insmod /lib/modules/ge_drv.ko   
+    insmod /lib/modules/brcm_switch.ko
+    insmod /lib/modules/bcm_headsetsw.ko
