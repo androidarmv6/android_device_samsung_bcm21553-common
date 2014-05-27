@@ -8,6 +8,8 @@ LOCAL_MODULE := audio.primary.$(TARGET_BOARD_PLATFORM)
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
 LOCAL_STATIC_LIBRARIES:= libmedia_helper
 LOCAL_SHARED_LIBRARIES:= \
+	libbinder \
+	liblog \
 	libutils \
 	libhardware_legacy \
 	libtinyalsa \

@@ -1,5 +1,0 @@
-## vold configuration file for the emulator/SDK
-## This is the direct uevent device path to the SD slot on the device
-
-dev_mount sdcard /mnt/sdcard auto /devices/platform/bcm_sdhc.3/mmc_host/mmc1
-

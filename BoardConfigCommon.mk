@@ -23,17 +23,15 @@ LOCAL_PATH:= $(call my-dir)
 # Kernel
 TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
-TARGET_PROVIDES_INIT := true
-TARGET_PROVIDES_INIT_RC := true
 
 # Recovery
-TARGET_RECOVERY_INITRC := device/samsung/bcm21553-common/recovery/recovery.rc
 TARGET_RECOVERY_FSTAB := device/samsung/bcm21553-common/recovery/recovery.fstab
 BOARD_BML_BOOT := "/dev/block/bml7"
 BOARD_BML_RECOVERY := "/dev/block/bml8"
 TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_RECOVERY_HANDLES_MOUNT := true
 BOARD_HAS_DOWNLOAD_MODE := true
+TARGET_RECOVERY_PIXEL_FORMAT := BGRA_8888
 
 # Boot Animation
 TARGET_BOOTANIMATION_PRELOAD := true
@@ -43,13 +41,16 @@ TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 TARGET_BOARD_PLATFORM := bcm21553
 TARGET_ARCH := arm
 TARGET_ARCH_VARIANT := armv6-vfp
-TARGET_CPU_ABI := armeabi-v6l
-TARGET_CPU_ABI2 := armeabi
+TARGET_CPU_ABI := armeabi
+TARGET_CPU_ABI2 := armeabi-v6l
+TARGET_CPU_VARIANT := arm11
 TARGET_ARCH_VARIANT_FPU := vfp
 TARGET_ARCH_VARIANT_CPU := arm1136jf-s
 #TARGET_BOARD_PLATFORM_GPU := videocoreIV
 TARGET_SPECIFIC_HEADER_PATH := device/samsung/bcm21553-common/include
 BCM21553_HARDWARE := true
+BOARD_USES_BROADCOM_HARDWARE := true
+COMMON_GLOBAL_CFLAGS += -DBCM_HARDWARE
 
 # Touchscreen
 BOARD_USE_LEGACY_TOUCHSCREEN := true
@@ -70,7 +71,7 @@ BOARD_CAMERA_DEVICE := /dev/video0
 BOARD_USE_JPEG := true
 
 # GPU Stuff
-BOARD_EGL_CFG := brcm_usrlib/dag/vmcsx/egl.cfg
+BOARD_EGL_CFG := hardware/broadcom/brcm_usrlib/dag/vmcsx/egl.cfg
 BOARD_NO_RGBX_8888 := true
 #BOARD_NO_32BPP := true
 BOARD_LCD_PARTIAL_UPDATES_ENABLED := true
@@ -88,7 +89,7 @@ BOARD_UMS_LUNFILE := "/sys/devices/lm-2/gadget/lun0/file"
 # Wifi
 BOARD_WPA_SUPPLICANT_DRIVER := WEXT
 WPA_SUPPLICANT_VERSION := VER_0_8_X
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wext
+#BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wext
 BOARD_WLAN_DEVICE := bcm4330
 BOARD_WLAN_DEVICE_REV := bcm4330
 
@@ -116,3 +117,6 @@ TARGET_FORCE_CPU_UPLOAD := true
 #BOARD_HAVE_FM_RADIO := true
 #BOARD_GLOBAL_CFLAGS += -DHAVE_FM_RADIO
 #BOARD_FM_DEVICE := bcm4329
+
+## TEMPORARY HACK: skip building external/chromium_org/
+PRODUCT_PREBUILT_WEBVIEWCHROMIUM := yes
