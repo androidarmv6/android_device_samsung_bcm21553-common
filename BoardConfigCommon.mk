@@ -73,6 +73,7 @@ USE_CAMERA_STUB := true
 BOARD_V4L2_DEVICE := /dev/video2
 BOARD_CAMERA_DEVICE := /dev/video0
 BOARD_USE_JPEG := true
+COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
 # GPU Stuff
 BOARD_EGL_CFG := hardware/broadcom/brcm_usrlib/dag/vmcsx/egl.cfg
