@@ -25,7 +25,7 @@ TARGET_NO_BOOTLOADER := true
 TARGET_NO_RADIOIMAGE := true
 
 # Recovery
-TARGET_RECOVERY_FSTAB := device/samsung/bcm21553-common/recovery/recovery.fstab
+TARGET_RECOVERY_FSTAB := device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
 BOARD_BML_BOOT := "/dev/block/bml7"
 BOARD_BML_RECOVERY := "/dev/block/bml8"
 TARGET_USERIMAGES_USE_EXT4 := true
