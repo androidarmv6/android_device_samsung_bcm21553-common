@@ -24,6 +24,9 @@ LOCAL_PATH:= $(call my-dir)
 TARGET_NO_BOOTLOADER				:= true
 TARGET_NO_RADIOIMAGE				:= true
 
+# Kernel ramdisk compression tool
+MINIGZIP := $(which lzma)
+
 # Recovery
 TARGET_RECOVERY_FSTAB				:= device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
 BOARD_BML_BOOT					:= "/dev/block/bml7"
