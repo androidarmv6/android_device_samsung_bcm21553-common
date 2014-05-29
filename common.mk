@@ -127,6 +127,15 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.sys.strictmode.visual=false \
     persist.sys.use_dithering=0
 
+## Graphics density
+ifneq (,$(filter cooperve,$(CM_BUILD)))
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.sf.lcd_density=160
+else
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.sf.lcd_density=120
+endif
+
 # Misc. Tweaks
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.lge.proximity.delay=25 \
@@ -156,10 +165,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.sys.usb.config=adb,mass_storage \
     persist.service.adb.enable=1 \
     ro.vold.umsdirtyratio=20
-
-# Memory
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.HOME_APP_ADJ=1
 
 # Extended JNI checks
 # The extended JNI checks will cause the system to run more slowly, but they can spot a variety of nasty bugs 
