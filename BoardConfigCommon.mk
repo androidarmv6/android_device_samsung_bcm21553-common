@@ -28,6 +28,7 @@ TARGET_NO_RADIOIMAGE				:= true
 TARGET_RECOVERY_FSTAB				:= device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
 BOARD_BML_BOOT					:= "/dev/block/bml7"
 BOARD_BML_RECOVERY				:= "/dev/block/bml8"
+BOARD_FLASH_BLOCK_SIZE				:= 131072
 TARGET_USERIMAGES_USE_EXT4			:= true
 BOARD_RECOVERY_HANDLES_MOUNT			:= true
 BOARD_HAS_DOWNLOAD_MODE				:= true
