@@ -37,8 +37,8 @@ PRODUCT_PACKAGES += \
 # HW drivers
 PRODUCT_PACKAGES += \
     libGLES_hgl \
-    gralloc.default \
-    hwcomposer.default
+    gralloc.bcm21553 \
+    hwcomposer.bcm21553
 
 # Audio
 PRODUCT_PACKAGES += \
