@@ -20,10 +20,11 @@ on init
 # load J4FS module
     insmod /lib/modules/j4fs.ko
 
-    insmod /lib/modules/memalloc.ko
-    insmod /lib/modules/hx170dec.ko
-    insmod /lib/modules/h6270enc.ko
-    insmod /lib/modules/gememalloc.ko    
-    insmod /lib/modules/ge_drv.ko   
-    insmod /lib/modules/brcm_switch.ko
-    insmod /lib/modules/bcm_headsetsw.ko
+on post-fs-data
+    insmod /system/lib/modules/memalloc.ko
+    insmod /system/lib/modules/hx170dec.ko
+    insmod /system/lib/modules/h6270enc.ko
+    insmod /system/lib/modules/gememalloc.ko
+    insmod /system/lib/modules/ge_drv.ko
+    insmod /system/lib/modules/brcm_switch.ko
+    insmod /system/lib/modules/bcm_headsetsw.ko
