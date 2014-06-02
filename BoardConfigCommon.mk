@@ -27,6 +27,9 @@ TARGET_NO_RADIOIMAGE				:= true
 # Kernel ramdisk compression tool
 MINIGZIP					:= $(shell which lzma)
 
+# Kernel source
+TARGET_KERNEL_SOURCE				:= kernel/samsung/bcm21553-common
+
 # Recovery
 TARGET_RECOVERY_FSTAB				:= device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
 BOARD_BML_BOOT					:= "/dev/block/bml7"
@@ -106,7 +109,7 @@ WPA_SUPPLICANT_VERSION				:= VER_0_8_X
 BOARD_WLAN_DEVICE				:= bcm4330
 BOARD_WLAN_DEVICE_REV				:= bcm4330
 
-WIFI_DRIVER_MODULE_PATH				:= "/system/lib/modules/dhd.ko"
+WIFI_DRIVER_MODULE_PATH				:= "/system/lib/modules/bcm4330.ko"
 WIFI_DRIVER_FW_PATH_AP				:= "/system/etc/wifi/bcm4330_aps.bin"
 WIFI_DRIVER_FW_PATH_STA				:= "/system/etc/wifi/bcm4330_sta.bin"
 WIFI_DRIVER_FW_PATH_P2P				:= "/system/etc/wifi/bcm4330_aps.bin"
