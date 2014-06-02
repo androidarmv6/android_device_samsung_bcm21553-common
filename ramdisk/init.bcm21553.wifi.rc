@@ -22,10 +22,6 @@ on post-fs-data
     chmod 0666 /data/misc/wifi/.nvmac.info
     chown wifi wifi /data/misc/wifi/.nvmac.info
 
-    mkdir /data/system/wpa_supplicant 0771 wifi wifi
-    chmod 0771 /data/system/wpa_supplicant
-    chown wifi wifi /data/system/wpa_supplicant
-
 # Let wifi control BT_VREG_CTL GPIO
     chown wifi wifi /sys/class/gpio/gpio21/value
     chmod 0664 /sys/class/gpio/gpio21/value
@@ -33,7 +29,7 @@ on post-fs-data
 service wpa_supplicant /system/bin/wpa_supplicant \
     -ieth0 -Dnl80211,wext -c/data/misc/wifi/wpa_supplicant.conf \
     -e/data/misc/wifi/entropy.bin \
-    -O/data/misc/wifi/sockets -g@android:wpa_wlan0
+    -O/data/misc/wifi/sockets -g@android:wpa_eth0
     class main
     socket wpa_eth0 dgram 0660 wifi wifi
     disabled
