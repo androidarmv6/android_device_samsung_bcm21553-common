@@ -1,32 +1,4 @@
-on init
-
-# create device mountpoints
-    mkdir /mnt/.lfs 0755 root root
-    mkdir /efs 0771 radio system
-
-# create temp folder for nv
-    mkdir /dev/radionv
-    chown radio system /dev/radionv
-    chmod 0770 /dev/radionv
-
-# load FSR module
-    insmod /lib/modules/fsr.ko
-    insmod /lib/modules/fsr_stl.ko
-
-# load RFS module
-    insmod /lib/modules/rfs_glue.ko
-    insmod /lib/modules/rfs_fat.ko
-
-# load J4FS module
-    insmod /lib/modules/j4fs.ko
-
-    insmod /system/lib/modules/memalloc.ko
-    insmod /system/lib/modules/hx170dec.ko
-    insmod /system/lib/modules/h6270enc.ko
-    insmod /system/lib/modules/gememalloc.ko
-    insmod /system/lib/modules/ge_drv.ko
-    insmod /system/lib/modules/brcm_switch.ko
-    insmod /system/lib/modules/bcm_headsetsw.ko
+import /init.bcm21553.fs.rc
 
 on boot
     setprop ro.radio.noril yes
