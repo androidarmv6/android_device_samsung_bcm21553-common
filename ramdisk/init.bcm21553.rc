@@ -1,6 +1,7 @@
 import init.bcm21553.fs.rc
 import init.bcm21553.gps.rc
 import init.bcm21553.sensors.rc
+import init.bcm21553.swapart.rc
 import init.bcm21553.usb.rc
 import init.bcm21553.wifi.rc
 
