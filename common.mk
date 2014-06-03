@@ -192,6 +192,14 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.com.google.locationfeatures=1 \
     ro.com.google.networklocation=1
 
+# WebKit
+PRODUCT_PACKAGES += \
+    libwebcore
+
+# Webkit (classic webview provider)
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.webview.provider=classic
+
 $(call inherit-product, frameworks/native/build/phone-hdpi-dalvik-heap.mk)
 # We have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
