@@ -70,15 +70,6 @@ on post-fs-data
 # waketime CSP461560
     chown radio system /sys/module/bcm_fuse_net/parameters/pdp_waketime
 
-service bdaddr /system/bin/bdaddr_read
-    class main
-    user root
-    disabled
-    oneshot
-
-on property:init.svc.bootanim=running
-    start bdaddr
-
 service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
     class late_start
     disabled
@@ -87,6 +78,10 @@ service get_macaddrs /system/bin/get_macaddrs
     class main
     user root
     oneshot
+    disabled
+
+on property:init.svc.ril-daemon=running
+    start get_macaddrs
 
 # Accelerometer Service
 service memsicd /system/bin/memsicd

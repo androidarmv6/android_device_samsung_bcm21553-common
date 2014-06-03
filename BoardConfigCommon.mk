@@ -122,6 +122,7 @@ WIFI_DRIVER_MODULE_ARG				:= "firmware_path=/system/etc/wifi/bcm4330_sta.bin nvr
 WIFI_DRIVER_MODULE_NAME				:= "bcm4330"
 
 # Bluetooth
+BOARD_BLUEDROID_VENDOR_CONF			:= device/samsung/bcm21553-common/bluetooth/vnd_samsung.txt
 BOARD_HAVE_BLUETOOTH				:= true
 BOARD_HAVE_BLUETOOTH_BCM			:= true
 BOARD_HAVE_SAMSUNG_BLUETOOTH			:= true
