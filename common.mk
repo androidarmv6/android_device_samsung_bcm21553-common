@@ -118,14 +118,9 @@ PRODUCT_PROPERTY_OVERRIDES := \
 
 # Graphics properties
 PRODUCT_PROPERTY_OVERRIDES += \
-    debug.sf.hw=1 \
-    debug.enabletr=false \
-    debug.composition.type=gpu \
-    hwui.render_dirty_regions=true \
-    hwui.disable_vsync=true \
-    hwui.print_config=choice \
-    persist.sys.strictmode.visual=false \
-    persist.sys.use_dithering=0
+    debug.hwui.render_dirty_regions=false \
+    debug.hwui.print_config=choice \
+    persist.sys.strictmode.visual=false
 
 ## Graphics density
 ifneq (,$(filter cooperve,$(CM_BUILD)))
@@ -141,15 +136,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.sys.purgeable_assets=1 \
     ro.config.low_ram=true
 
-# Misc. Tweaks
+# Stagefright
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.lge.proximity.delay=25 \
-    mot.proximity.delay=25 \
     media.stagefright.enable-player=true \
-    media.stagefright.enable-meta=true \
-    media.stagefright.enable-scan=true \
+    media.stagefright.enable-meta=false \
+    media.stagefright.enable-scan=false \
     media.stagefright.enable-http=true \
-    media.stagefright.enable-record=true \
     media.stagefright.enable-aac=true \
     media.stagefright.enable-qcp=true
 
