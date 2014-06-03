@@ -136,6 +136,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=120
 endif
 
+# Memory
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.purgeable_assets=1 \
+    ro.config.low_ram=true
+
 # Misc. Tweaks
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.lge.proximity.delay=25 \
