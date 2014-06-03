@@ -115,10 +115,10 @@ BOARD_WLAN_DEVICE				:= bcm4330
 BOARD_WLAN_DEVICE_REV				:= bcm4330
 
 WIFI_DRIVER_MODULE_PATH				:= "/system/lib/modules/bcm4330.ko"
-WIFI_DRIVER_FW_PATH_AP				:= "/system/etc/wifi/bcm4330_aps.bin"
-WIFI_DRIVER_FW_PATH_STA				:= "/system/etc/wifi/bcm4330_sta.bin"
-WIFI_DRIVER_FW_PATH_P2P				:= "/system/etc/wifi/bcm4330_aps.bin"
-WIFI_DRIVER_MODULE_ARG				:= "firmware_path=/system/etc/wifi/bcm4330_sta.bin nvram_path=/system/etc/wifi/nvram.txt"
+WIFI_DRIVER_FW_PATH_AP				:= "/system/etc/firmware/bcm4330_aps.bin"
+WIFI_DRIVER_FW_PATH_STA				:= "/system/etc/firmware/bcm4330_sta.bin"
+WIFI_DRIVER_FW_PATH_P2P				:= "/system/etc/firmware/bcm4330_aps.bin"
+WIFI_DRIVER_MODULE_ARG				:= "firmware_path=/system/etc/firmware/bcm4330_sta.bin nvram_path=/system/etc/firmware/nvram.txt"
 WIFI_DRIVER_MODULE_NAME				:= "bcm4330"
 
 # Bluetooth
