@@ -20,6 +20,9 @@
 
 LOCAL_PATH:= $(call my-dir)
 
+# Custom bootimg (recovery merged into boot ramdisk)
+BOARD_CUSTOM_BOOTIMG_MK				:= device/samsung/bcm21553-common/bcm21553-bootimg.mk
+
 # Kernel
 TARGET_NO_BOOTLOADER				:= true
 TARGET_NO_RADIOIMAGE				:= true
