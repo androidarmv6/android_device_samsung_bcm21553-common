@@ -138,3 +138,6 @@ TARGET_FORCE_CPU_UPLOAD				:= true
 
 ## TEMPORARY HACK: skip building external/chromium_org/
 PRODUCT_PREBUILT_WEBVIEWCHROMIUM 		:= yes
+
+# Squisher
+TARGET_SYSTEMIMAGE_USE_SQUISHER := true
