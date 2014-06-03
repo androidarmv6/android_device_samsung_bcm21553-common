@@ -28,6 +28,17 @@ $(LOCAL_BUILT_MODULE): $(LOCAL_PATH)/$(LOCAL_SRC_FILES)
 	$(hide) sed -e 's/fstab.bcm21553/fstab.$(SAMSUNG_BOOTLOADER)/g' -e 's/init.bcm21553/init.$(SAMSUNG_BOOTLOADER)/g' $< >$@
 
 #######################################
+# init.gt-xxxxx.bt.rc
+
+include $(CLEAR_VARS)
+LOCAL_MODULE		:= init.$(SAMSUNG_BOOTLOADER).bt.rc
+LOCAL_MODULE_TAGS	:= optional
+LOCAL_MODULE_CLASS	:= ETC
+LOCAL_SRC_FILES		:= init.bcm21553.bt.rc
+LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
+include $(BUILD_PREBUILT)
+
+#######################################
 # init.gt-xxxxx.fs.rc
 
 include $(CLEAR_VARS)
