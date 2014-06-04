@@ -1,3 +1,4 @@
+import init.bcm21553.bt.rc
 import init.bcm21553.fs.rc
 import init.bcm21553.gps.rc
 import init.bcm21553.sensors.rc
