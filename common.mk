@@ -153,11 +153,13 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # RIL
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.telephony.default_network=0 \
-    ro.ril.hsxpa=1 \
+    rild.libpath=/system/lib/libbrcm_ril.so \
+    ro.ril.disable.power.collapse=0 \
     ro.ril.gprsclass=10 \
+    ro.ril.hsxpa=1 \
     ro.telephony.call_ring.delay=0 \
-    ro.ril.disable.power.collapse=0
+    ro.telephony.default_network=0 \
+    ro.telephony.ril.v3=icccardstatus,datacall,signalstrength,facilitylock
 
 # Wifi interface
 PRODUCT_PROPERTY_OVERRIDES += \
