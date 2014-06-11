@@ -24,6 +24,10 @@ LOCAL_PATH:= $(call my-dir)
 BOARD_CUSTOM_BOOTIMG_MK				:= device/samsung/bcm21553-common/bcm21553-bootimg.mk
 
 # Kernel
+BOARD_KERNEL_BASE				:= 0x81600000
+BOARD_KERNEL_PAGESIZE				:= 4096
+BOARD_NAND_PAGE_SIZE				:= 4096
+BOARD_NAND_SPARE_SIZE				:= 128
 TARGET_NO_BOOTLOADER				:= true
 TARGET_NO_RADIOIMAGE				:= true
 
