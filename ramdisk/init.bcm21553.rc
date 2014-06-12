@@ -69,6 +69,9 @@ on post-fs-data
     chown system input /sys/class/input/input4/delay
     chown system input /sys/class/input/input4/wake
 
+# led flash
+    chown radio system /sys/devices/virtual/camera/camera/camflash
+
 # waketime CSP461560
     chown radio system /sys/module/bcm_fuse_net/parameters/pdp_waketime
 
