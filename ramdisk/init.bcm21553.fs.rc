@@ -66,10 +66,8 @@ on init
     insmod /lib/modules/j4fs.ko
 
 on boot
-    insmod /system/lib/modules/memalloc.ko
+
     insmod /system/lib/modules/hx170dec.ko
     insmod /system/lib/modules/h6270enc.ko
-    insmod /system/lib/modules/gememalloc.ko
-    insmod /system/lib/modules/ge_drv.ko
     insmod /system/lib/modules/brcm_switch.ko
-    insmod /system/lib/modules/bcm_headsetsw.ko
+    insmod /system/lib/modules/bcrm_headsetsw.ko
