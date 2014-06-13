@@ -49,3 +49,14 @@ service wlandutservice /system/bin/wlandutservice
     class main
     disabled
     oneshot
+
+# get mac addresses via RIL for wifi & BT
+service get_macaddrs /system/bin/logwrapper /system/bin/get_macaddrs
+    class main
+    user root
+    oneshot
+    disabled
+
+on property:init.svc.ril-daemon=running
+    start get_macaddrs
+
