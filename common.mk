@@ -30,6 +30,7 @@ PRODUCT_PACKAGES += \
 	init.$(SAMSUNG_BOOTLOADER).bt.rc \
 	init.$(SAMSUNG_BOOTLOADER).fs.rc \
 	init.$(SAMSUNG_BOOTLOADER).gps.rc \
+	init.$(SAMSUNG_BOOTLOADER).sensors.rc \
 	init.$(SAMSUNG_BOOTLOADER).swapart.rc \
 	init.$(SAMSUNG_BOOTLOADER).usb.rc \
 	init.$(SAMSUNG_BOOTLOADER).wifi.rc \
