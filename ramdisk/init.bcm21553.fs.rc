@@ -70,4 +70,4 @@ on boot
     insmod /system/lib/modules/hx170dec.ko
     insmod /system/lib/modules/h6270enc.ko
     insmod /system/lib/modules/brcm_switch.ko
-    insmod /system/lib/modules/bcrm_headsetsw.ko
+    insmod /system/lib/modules/brcm-headsetsw.ko
