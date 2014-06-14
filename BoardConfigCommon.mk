@@ -114,7 +114,7 @@ BOARD_UMS_LUNFILE				:= "/sys/devices/lm-2/gadget/lun0/file"
 # Wifi
 BOARD_WPA_SUPPLICANT_DRIVER			:= WEXT
 WPA_SUPPLICANT_VERSION				:= VER_0_8_X
-#BOARD_WPA_SUPPLICANT_PRIVATE_LIB		:= lib_driver_cmd_wext
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB		:= lib_driver_cmd_bcmdhd
 BOARD_WLAN_DEVICE				:= bcm4330
 BOARD_WLAN_DEVICE_REV				:= bcm4330
 
