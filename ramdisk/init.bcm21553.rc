@@ -24,6 +24,7 @@ on fs
 
 # mount device partitions
     mount_all /fstab.bcm21553
+    swapon_all /fstab.bcm21553
 
 on post-fs-data
 
