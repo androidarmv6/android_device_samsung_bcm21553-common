@@ -5,10 +5,6 @@ on post-fs-data
     chmod 0660 /data/misc/sensors/ecs_nvm
     chmod 0660 /data/misc/sensors/accel_offset
 
-# backlight
-    chown system system /sys/class/backlight/aat1401-backlight/brightness
-    chown system system /sys/class/backlight/pwm-keypad-backlight.0/brightness
-
 # proximity
     chown system input /sys/class/input/input0/delay
     chown system input /sys/class/input/input0/enable
@@ -37,6 +33,12 @@ on post-fs-data
 
 # led flash
     chown radio system /sys/devices/virtual/camera/camera/camflash
+    
+on boot
+
+# backlight
+    chown system system /sys/class/backlight/aat1401-backlight/brightness
+    chown system system /sys/class/backlight/pwm-keypad-backlight.0/brightness
 
 # accelerometer Service
 service memsicd /system/bin/memsicd
