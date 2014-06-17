@@ -37,6 +37,13 @@ PRODUCT_PACKAGES += \
 	init.recovery.$(SAMSUNG_BOOTLOADER).rc \
 	ueventd.$(SAMSUNG_BOOTLOADER).rc
 
+# Audio
+PRODUCT_PACKAGES += \
+    audio.primary.bcm21553 \
+    audio.a2dp.default \
+    audio.usb.default \
+    audio.r_submix.default
+
 # HW drivers
 PRODUCT_PACKAGES += \
     libGLES_hgl \
@@ -99,6 +106,22 @@ PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/qwerty.kcm.bin:system/usr/keychars/qwerty.kcm.bin \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/qwerty2.kcm.bin:system/usr/keychars/qwerty2.kcm.bin \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/sec_key.kcm.bin:system/usr/keychars/sec_key.kcm.bin
+
+# Audio mixer paths
+PRODUCT_COPY_FILES += \
+    device/samsung/bcm21553-common/prebuilt/etc/mixer_paths.xml:system/etc/mixer_paths.xml
+
+# Audio policy
+PRODUCT_COPY_FILES += \
+    device/samsung/bcm21553-common/prebuilt/etc/audio_policy.conf:system/etc/audio_policy.conf
+
+# Media codecs
+PRODUCT_COPY_FILES += \
+    device/samsung/bcm21553-common/prebuilt/etc/media_codecs.xml:system/etc/media_codecs.xml
+
+# Media profiles
+PRODUCT_COPY_FILES += \
+    device/samsung/bcm21553-common/prebuilt/etc/media_profiles.xml:system/etc/media_profiles.xml
 
 # WIFI
 PRODUCT_COPY_FILES += \
