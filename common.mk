@@ -43,14 +43,6 @@ PRODUCT_PACKAGES += \
     gralloc.bcm21553 \
     hwcomposer.bcm21553
 
-# Audio
-PRODUCT_PACKAGES += \
-    audio.primary.bcm21553 \
-    audio_policy.bcm21553 \
-    libtinyalsa \
-    audio.a2dp.default \
-    libaudioutils
-
 # Video decoding
 PRODUCT_PACKAGES += \
     libstagefrighthw \
@@ -107,11 +99,6 @@ PRODUCT_COPY_FILES += \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/qwerty.kcm.bin:system/usr/keychars/qwerty.kcm.bin \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/qwerty2.kcm.bin:system/usr/keychars/qwerty2.kcm.bin \
     device/samsung/bcm21553-common/prebuilt/usr/keychars/sec_key.kcm.bin:system/usr/keychars/sec_key.kcm.bin
-
-# Media
-#PRODUCT_COPY_FILES += \
-#    device/samsung/bcm21553-common/prebuilt/etc/media_profiles.xml:system/etc/media_profiles.xml
-#    device/samsung/bcm21553-common/prebuilt/etc/asound.conf:system/etc/asound.conf
 
 # WIFI
 PRODUCT_COPY_FILES += \
