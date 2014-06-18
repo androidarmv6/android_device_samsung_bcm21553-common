@@ -3,6 +3,12 @@ on init
 # gps config (workaround)
     symlink /system/etc/gps.conf /etc/gps.conf
 
+on post-fs-data
+
+# delete old sockets
+    exec /system/bin/rm -f /data/lcs.socket
+    exec /system/bin/rm -f /data/rilgps.socket
+
 on boot
 
     write /sys/class/gpio/export 23
@@ -24,10 +30,13 @@ service gpsd /system/bin/glgps -c /system/etc/gps/glconfig4751.xml
     user gps
     group system sdcard_rw inet net_raw
 
-on property:init.svc.bootanim=running
-    stop ril-daemon
+on property:init.svc.gpsd=stopped
+    exec /system/bin/rm -f /data/lcs.socket
+    exec /system/bin/rm -f /data/rilgps.socket
 
-on property:init.svc.bootanim=stopped
+on property:init.svc.gpsd=running
+    wait /data/lcs.socket
     chmod 0777 /data/lcs.socket
+    wait /data/rilgps.socket
     chmod 0777 /data/rilgps.socket
-    start ril-daemon
+
