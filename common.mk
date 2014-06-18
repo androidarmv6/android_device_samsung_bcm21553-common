@@ -219,3 +219,7 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 $(call inherit-product, vendor/google/gapps_armv6_tiny.mk)
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
+
+# GPS
+$(call inherit-product, device/common/gps/gps_eu_supl.mk)
+

@@ -1,30 +1,33 @@
+on init
+
+# gps config (workaround)
+    symlink /system/etc/gps.conf /etc/gps.conf
+
 on boot
 
-    chown gps system /dev/ttyS2
-
-    write /sys/class/gpio/export 56
-    chown gps system /sys/class/gpio/gpio56/value
-    chown gps system /sys/class/gpio/gpio56/direction
-    write /sys/class/gpio/gpio56/value 0
-    write /sys/class/gpio/gpio56/direction out
-
     write /sys/class/gpio/export 23
+    write /sys/class/gpio/export 56
+
+    chown gps system /sys/class/gpio/export
     chown gps system /sys/class/gpio/gpio23/value
     chown gps system /sys/class/gpio/gpio23/direction
-    write /sys/class/gpio/gpio23/value 0
-    write /sys/class/gpio/gpio23/direction out
-    chown gps system /data/gps/glgpsctrl
-    chown gps system /dev/bcm_gps
-    chown gps system /dev/bcm_cntin
+    chown gps system /sys/class/gpio/gpio56/value
+    chown gps system /sys/class/gpio/gpio56/direction
 
-# Define broadcom gps properties 
+    chown gps system /data/gps/glgpsctrl
+
+# define broadcom gps properties
     setprop gps.fd.block "false"
 
 service gpsd /system/bin/glgps -c /system/etc/gps/glconfig4751.xml
     class main
     user gps
     group system sdcard_rw inet net_raw
-    disabled
+
+on property:init.svc.bootanim=running
+    stop ril-daemon
 
 on property:init.svc.bootanim=stopped
-    start gpsd
+    chmod 0777 /data/lcs.socket
+    chmod 0777 /data/rilgps.socket
+    start ril-daemon
