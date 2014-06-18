@@ -50,6 +50,10 @@ PRODUCT_PACKAGES += \
     gralloc.bcm21553 \
     hwcomposer.bcm21553
 
+# Lights
+PRODUCT_PACKAGES += \
+    lights.bcm21553
+
 # Video decoding
 PRODUCT_PACKAGES += \
     libstagefrighthw \
