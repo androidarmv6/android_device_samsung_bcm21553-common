@@ -20,12 +20,16 @@ on post-fs-data
 # accelerometer
     chown system input /sys/class/input/input3/delay
     chown system input /sys/class/input/input3/enable
+    chown system input /sys/class/input/input3/position
     chown system input /sys/class/input/input3/wake
+    write /sys/class/input/input3/position 3
 
 # geomagnetic
     chown system input /sys/class/input/input1/delay
     chown system input /sys/class/input/input1/enable
+    chown system input /sys/class/input/input1/position
     chown system input /sys/class/input/input1/wake
+    write /sys/class/input/input1/position 0
 
 # geomagnetic_raw
     chown compass input /sys/class/input/input2/offsets
