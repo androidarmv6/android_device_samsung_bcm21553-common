@@ -52,8 +52,8 @@ TARGET_NO_SEPARATE_RECOVERY			:= true
 TARGET_RECOVERY_LCD_BACKLIGHT_PATH		:= \"/sys/class/backlight/aat1401-backlight/brightness\"
 
 # Charger mode
+BOARD_CHARGER_RES				:= device/samsung/bcm21553-common/prebuilt/res/charger
 BOARD_CHARGING_CMDLINE_NAME			:= "BOOT_MODE"
-BOARD_CHARGING_CMDLINE_NEEDS_FS			:= true
 BOARD_CHARGING_CMDLINE_VALUE			:= "1"
 BOARD_CHARGING_CMDLINE_RECOVERY_VALUE		:= "4"
 

@@ -44,6 +44,11 @@ PRODUCT_PACKAGES += \
     audio.usb.default \
     audio.r_submix.default
 
+# Charger
+PRODUCT_PACKAGES += \
+    charger \
+    charger_res_images
+
 # HW drivers
 PRODUCT_PACKAGES += \
     libGLES_hgl \
