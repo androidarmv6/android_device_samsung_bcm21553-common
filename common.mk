@@ -220,6 +220,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.webview.provider=classic
 
+# Inherit qcom/msm7x27
+$(call inherit-product, device/samsung/bcm21553-common/qcom-hack/msm7x27.mk)
+
 $(call inherit-product, frameworks/native/build/phone-hdpi-dalvik-heap.mk)
 # We have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
