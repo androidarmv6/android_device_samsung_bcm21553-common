@@ -54,3 +54,5 @@
 /dev/bcm_vsp              0660   root       root
 /dev/v3d                  0666   root       root
 
+# camera
+/dev/camera               0660   system     camera
