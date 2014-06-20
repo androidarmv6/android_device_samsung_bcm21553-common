@@ -92,6 +92,7 @@ BOARD_MOBILEDATA_INTERFACE_NAME			:= "pdp0"
 
 # Camera
 USE_CAMERA_STUB					:= true
+BOARD_NEEDS_MEMORYHEAPPMEM			:= true
 BOARD_V4L2_DEVICE				:= /dev/video2
 BOARD_CAMERA_DEVICE				:= /dev/video0
 BOARD_USE_JPEG					:= true
