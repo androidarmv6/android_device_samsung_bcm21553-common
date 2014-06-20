@@ -18,6 +18,9 @@
 # Product-specific compile-time definitions.
 #
 
+# Use the Qualcomm common folder
+include device/samsung/bcm21553-common/qcom-hack/BoardConfigCommon.mk
+
 LOCAL_PATH:= $(call my-dir)
 
 # Custom bootimg (recovery merged into boot ramdisk)
