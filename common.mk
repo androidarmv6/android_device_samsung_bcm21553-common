@@ -44,6 +44,10 @@ PRODUCT_PACKAGES += \
     audio.usb.default \
     audio.r_submix.default
 
+# Camera
+PRODUCT_PACKAGES += \
+    camera.bcm21553
+
 # Charger
 PRODUCT_PACKAGES += \
     charger \
