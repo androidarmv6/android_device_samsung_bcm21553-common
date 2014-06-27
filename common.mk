@@ -145,8 +145,7 @@ PRODUCT_PROPERTY_OVERRIDES := \
 # Graphics properties
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.hwui.render_dirty_regions=false \
-    debug.hwui.print_config=choice \
-    persist.sys.strictmode.visual=false
+    ro.opengles.surface.rgba8888=true
 
 ## Graphics density
 ifneq (,$(filter cooperve,$(CM_BUILD)))
