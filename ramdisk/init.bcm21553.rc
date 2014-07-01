@@ -47,13 +47,6 @@ on post-fs-data
 # waketime CSP461560
     chown radio system /sys/module/bcm_fuse_net/parameters/pdp_waketime
 
-# blacklist com.android.systemui process (due to hwcomposer corruption issues)
-    mkdir /data/local/hwui.deny system nobody
-    exec /sbin/touch /data/local/hwui.deny/com.android.systemui
-    wait /data/local/hwui.deny/com.android.systemui
-    chmod 0600 /data/local/hwui.deny/com.android.systemui
-    chown system system /data/local/hwui.deny/com.android.systemui
-
 service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
     class late_start
     disabled
