@@ -1,31 +1,96 @@
 <mixer>
   <!-- These are the initial mixer settings -->
-  <ctl name="Speaker Playback Volume" value="0" />
-  <ctl name="Speaker Playback Switch" value="0" />
+  <ctl name="Speaker Playback Volume" id="0" value="0" />
+  <ctl name="Speaker Playback Volume" id="1" value="0" />
+  <ctl name="Speaker Playback Switch" id="0" value="0" />
+  <ctl name="Speaker Playback Switch" id="1" value="0" />
   <ctl name="Mic Capture Volume" value="0" />
-  <ctl name="Mic Capture Switch" value="0" />
+  <ctl name="Mic Capture Switch" value="1" />
   <ctl name="Earpiece Playback Volume" value="0" />
   <ctl name="Earpiece Playback Switch" value="0" />
-  <ctl name="Headset Playback Volume" value="0" />
-  <ctl name="Headset Playback Switch" value="0" />
+  <ctl name="Headset Playback Volume" id="0" value="0" />
+  <ctl name="Headset Playback Volume" id="1" value="0" />
+  <ctl name="Headset Playback Switch" id="0" value="0" />
+  <ctl name="Headset Playback Switch" id="1" value="0" />
   <ctl name="BTHeadset Volume" value="0" />
   <ctl name="BTHeadset Switch" value="0" />
-  <ctl name="PCM Playback Route" value="0" />
+
+  <path name="earpiece">
+    <ctl name="Earpiece Playback Switch" value="1" />
+    <ctl name="Earpiece Playback Volume" value="5" />
+    <ctl name="PCM Playback Route" id="0" value="1" />
+    <ctl name="PCM Playback Route" id="1" value="0" />
+  </path>
+
+  <path name="earpiece-off">
+    <ctl name="Earpiece Playback Switch" value="0" />
+    <ctl name="Earpiece Playback Volume" value="0" />
+    <ctl name="PCM Playback Route" id="0" value="0" />
+    <ctl name="PCM Playback Route" id="1" value="0" />
+  </path>
+
+  <path name="earpiece-telephony">
+    <ctl name="Earpiece Playback Switch" value="1" />
+    <ctl name="Earpiece Playback Volume" value="5" />
+  </path>
+
+  <path name="headset">
+    <ctl name="Headset Playback Volume" id="0" value="15" />
+    <ctl name="Headset Playback Volume" id="1" value="15" />
+    <ctl name="Headset Playback Switch" id="0" value="1" />
+    <ctl name="Headset Playback Switch" id="1" value="1" />
+    <ctl name="PCM Playback Route" id="0" value="1" />
+    <ctl name="PCM Playback Route" id="1" value="1" />
+  </path>
+
+  <path name="headset-off">
+    <ctl name="Headset Playback Volume" id="0" value="0" />
+    <ctl name="Headset Playback Volume" id="1" value="0" />
+    <ctl name="Headset Playback Switch" id="0" value="0" />
+    <ctl name="Headset Playback Switch" id="1" value="0" />
+    <ctl name="PCM Playback Route" id="0" value="0" />
+    <ctl name="PCM Playback Route" id="1" value="1" />
+  </path>
+
+  <path name="headset-telephony">
+    <ctl name="Headset Playback Volume" id="0" value="15" />
+    <ctl name="Headset Playback Volume" id="1" value="15" />
+    <ctl name="Headset Playback Switch" id="0" value="1" />
+    <ctl name="Headset Playback Switch" id="1" value="1" />
+  </path>
 
   <path name="speaker">
-    <ctl name="Speaker Playback Switch" value="1" />
+    <ctl name="Speaker Playback Volume" id="0" value="15" />
+    <ctl name="Speaker Playback Volume" id="1" value="15" />
+    <ctl name="Speaker Playback Switch" id="0" value="1" />
+    <ctl name="Speaker Playback Switch" id="1" value="1" />
+    <ctl name="PCM Playback Route" id="0" value="1" />
+    <ctl name="PCM Playback Route" id="1" value="4" />
   </path>
 
-  <path name="headphone">
-    <ctl name="Earpiece Playback Switch" value="1" />
-    <ctl name="Headset Playback Switch" value="1" />
+  <path name="speaker-off">
+    <ctl name="Speaker Playback Volume" id="0" value="0" />
+    <ctl name="Speaker Playback Volume" id="1" value="0" />
+    <ctl name="Speaker Playback Switch" id="0" value="0" />
+    <ctl name="Speaker Playback Switch" id="1" value="0" />
+    <ctl name="PCM Playback Route" id="0" value="0" />
+    <ctl name="PCM Playback Route" id="1" value="4" />
   </path>
 
-  <path name="main-mic-left">
-    <ctl name="Mic Capture Switch" value="1" />
+  <path name="speaker-telephony">
+    <ctl name="Speaker Playback Volume" id="0" value="15" />
+    <ctl name="Speaker Playback Volume" id="1" value="15" />
+    <ctl name="Speaker Playback Switch" id="0" value="1" />
+    <ctl name="Speaker Playback Switch" id="1" value="1" />
   </path>
 
-  <path name="main-mic-top">
+  <path name="main-mic">
+    <ctl name="Mic Capture Volume" value="5" />
+    <ctl name="Mic Capture Switch" value="0" />
+  </path>
+
+  <path name="main-mic-off">
+    <ctl name="Mic Capture Volume" value="0" />
     <ctl name="Mic Capture Switch" value="1" />
   </path>
 
