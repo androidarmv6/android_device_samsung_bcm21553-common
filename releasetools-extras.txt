@@ -1,0 +1,18 @@
+# Extra apps
+app/Exchange2.apk
+
+# Duplicate audio files (~1MB)
+media/audio/alarms/Argon.ogg
+media/audio/alarms/Carbon.ogg
+media/audio/alarms/Cesium.ogg
+media/audio/alarms/Hassium.ogg
+media/audio/alarms/Nobelium.ogg
+media/audio/alarms/Platinum.ogg
+media/audio/alarms/Plutonium.ogg
+media/audio/notifications/F1_MissedCall.ogg
+media/audio/notifications/F1_New_MMS.ogg
+media/audio/notifications/Lalande.ogg
+media/audio/notifications/Merope.ogg
+media/audio/notifications/SpaceSeed.ogg
+media/audio/notifications/Tejat.ogg
+

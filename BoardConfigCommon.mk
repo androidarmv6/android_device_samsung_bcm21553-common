@@ -154,4 +154,8 @@ TARGET_FORCE_CPU_UPLOAD				:= true
 PRODUCT_PREBUILT_WEBVIEWCHROMIUM 		:= yes
 
 # Squisher
-TARGET_SYSTEMIMAGE_USE_SQUISHER := true
+TARGET_SYSTEMIMAGE_USE_SQUISHER			:= true
+
+# Releasetools extras
+TARGET_OTA_EXTRAS_FILE				:= device/samsung/bcm21553-common/releasetools-extras.txt
+
