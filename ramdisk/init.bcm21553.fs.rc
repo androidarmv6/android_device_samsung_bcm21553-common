@@ -58,13 +58,6 @@ on init
     insmod /lib/modules/fsr.ko
     insmod /lib/modules/fsr_stl.ko
 
-# load RFS module
-    insmod /lib/modules/rfs_glue.ko
-    insmod /lib/modules/rfs_fat.ko
-
-# load J4FS module
-    insmod /lib/modules/j4fs.ko
-
 on boot
 
     insmod /system/lib/modules/hx170dec.ko
