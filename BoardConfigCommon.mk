@@ -89,6 +89,8 @@ BOARD_USES_GENERIC_AUDIO			:= false
 # RIL
 BOARD_USES_LEGACY_RIL				:= true
 BOARD_MOBILEDATA_INTERFACE_NAME			:= "pdp0"
+BOARD_RIL_CLASS := ../../../device/samsung/bcm21553-common/ril/
+BOARD_RIL_NO_CELLINFOLIST			:= true
 
 # Camera
 USE_CAMERA_STUB					:= true
