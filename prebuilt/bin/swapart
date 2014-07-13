@@ -57,9 +57,17 @@ if [ "$isswapon" = "1" ] && [ "$swappriority" != "$swappriority_now" ]; then
 fi
 }
 
+disablezram() {
+iszramdisabled=$(getprop persist.sys.disable_zram)
+if [ "$iszramdisabled" = "1" ]; then
+    /system/bin/swapoff /dev/block/zram0
+fi
+}
+
 bootcheck() {
 # ensure customizations are applied after Android boot completes
 swap
+disablezram
 }
 
 # run command
