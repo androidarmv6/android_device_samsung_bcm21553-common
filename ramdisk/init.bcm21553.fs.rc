@@ -42,6 +42,7 @@ on early-init
     mknod /dev/stl15       b 0755 138 15
 
     chown radio system /dev/bml15
+    chown system graphics /dev/gememalloc
 
 on init
 

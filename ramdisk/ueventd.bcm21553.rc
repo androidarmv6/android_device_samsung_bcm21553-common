@@ -34,7 +34,7 @@
 /dev/ttyGPS0              0660   system     system
 /dev/ttyXTRA0             0660   system     system
 
-/dev/cache-ops            0666   root       root
+/dev/cache-ops            0666   system     graphics
 
 # sensors
 /dev/akm8975_dev          0660   system     system
