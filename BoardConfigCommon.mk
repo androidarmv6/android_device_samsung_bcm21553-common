@@ -41,7 +41,7 @@ TARGET_KERNEL_SOURCE				:= kernel/samsung/bcm21553-common
 # Recovery
 TARGET_RECOVERY_FSTAB				:= device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
 BOARD_BML_BOOT					:= "/dev/block/bml7"
-BOARD_BML_RECOVERY				:= "/dev/block/bml8"
+BOARD_BML_RECOVERY				:= "/dev/block/bml7"
 BOARD_CUSTOM_RECOVERY_KEYMAPPING		:= ../../device/samsung/bcm21553-common/recovery/bcm21553_recovery_keys.c
 BOARD_FLASH_BLOCK_SIZE				:= 131072
 TARGET_USERIMAGES_USE_EXT4			:= true
