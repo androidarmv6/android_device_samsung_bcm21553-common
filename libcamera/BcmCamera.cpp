@@ -656,10 +656,8 @@ extern "C" int close_camera_device(hw_device_t* hw_dev)
     ALOGD("%s:++",__FUNCTION__);
     camera_device_t *device = (camera_device_t *)hw_dev;
     if (device) {
-#ifdef QCOM_HARDWARE
         if (qCamera != NULL)
             qCamera.clear();
-#endif
         free(device);
         rc = 0;
     }
