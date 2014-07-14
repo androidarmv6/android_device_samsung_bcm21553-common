@@ -283,7 +283,7 @@ static void select_devices(struct audio_device *adev)
 
     if (speaker_on) {
         adev->requested_device = AUDIO_DEVICE_OUT_SPEAKER;
-        adev->extamp_volume = 0;  // modeapp 7,0 does not use the extamp path
+        adev->extamp_volume = 1;
         adev->volume_scale = 5.5; // max: 18
     }
     if (headphone_on) {
@@ -349,7 +349,7 @@ static void select_pcm_devices(struct audio_device *adev)
         if (call_on) { select_modeapp(1, 0); }
     } else if (adev->requested_device == AUDIO_DEVICE_OUT_SPEAKER) {
         audio_route_apply_and_update_path(adev->ar, "speaker");
-        if (call_on) { select_modeapp(7, 0); } // 4, 0 is the extamp path, but has more distortion
+        if (call_on) { select_modeapp(4, 0); }
     } else {
         ALOGE("Error: could not enable audio route for device %d", adev->current_device);
         return;
