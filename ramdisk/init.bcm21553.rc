@@ -29,7 +29,17 @@ on init
 on fs
 
 # mount device partitions
-    mount_all /fstab.bcm21553
+
+    # mount_all doesn't mount mtd partitions correctly - gives the following error:
+    # fs_mgr: Failed to mount an un-encryptable or wiped partition onsystem at /system options: (null) error: Block device required
+    # odd, as mtdblock devices are present, and manual/cwm mounting works correctly.
+    #mount_all /fstab.bcm21553
+
+    mount yaffs2 mtd@system /system
+    mount yaffs2 mtd@system /system ro remount
+    mount yaffs2 mtd@userdata /data nosuid nodev
+    mount yaffs2 mtd@cache /cache nosuid nodev
+
     swapon_all /fstab.bcm21553
 
 on post-fs-data
