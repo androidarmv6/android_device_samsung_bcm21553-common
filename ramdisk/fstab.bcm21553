@@ -7,9 +7,8 @@
 system						/system			yaffs2	ro			check,wait
 cache						/cache			yaffs2	nosuid,nodev		check,wait
 userdata					/data			yaffs2	nosuid,nodev		check,wait
-/devices/platform/bcm_sdhc.3/mmc_host/mmc1	auto			auto	defaults		voldmanaged=sdcard0:auto,noemulatedsd
+/dev/block/mmcblk0				auto			auto	defaults		voldmanaged=sdcard0:auto,noemulatedsd
 /dev/block/mmcblk0p2				/sd-ext			ext4	defaults		recoveryonly
 boot						/boot			mtd	defaults		recoveryonly
-recovery					/recovery		mtd	defaults		recoveryonly
 /dev/block/zram0				none			swap	defaults		zramsize=50331648,swapprio=1
 

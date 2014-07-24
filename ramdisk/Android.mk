@@ -11,6 +11,11 @@ LOCAL_SRC_FILES		:= fstab.bcm21553
 LOCAL_MODULE_PATH	:= $(TARGET_ROOT_OUT)
 include $(BUILD_PREBUILT)
 
+$(LOCAL_BUILT_MODULE): $(LOCAL_PATH)/$(LOCAL_SRC_FILES)
+	@echo "Adjust mmc & zram configuration for fstab.$(SAMSUNG_BOOTLOADER): $< -> $@"
+	@mkdir -p $(dir $@)
+	$(hide) sed -e s#'/dev/block/mmcblk0\t\t\t'#'/devices/platform/bcm_sdhc.3/mmc_host/mmc1'#g -e 's/50331648/$(BOARD_ZRAM_SIZE)/g' $< >$@
+
 #######################################
 # init.gt-xxxxx.rc
 

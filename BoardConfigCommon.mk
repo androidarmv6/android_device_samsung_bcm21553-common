@@ -39,7 +39,7 @@ TARGET_KERNEL_CUSTOM_TOOLCHAIN			:= arm-eabi-4.4.3
 TARGET_KERNEL_SOURCE				:= kernel/samsung/bcm21553-common
 
 # Recovery
-TARGET_RECOVERY_FSTAB				:= device/samsung/bcm21553-common/recovery/recovery.fstab
+TARGET_RECOVERY_FSTAB				:= device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
 BOARD_BML_BOOT					:= "/dev/block/bml7"
 BOARD_BML_RECOVERY				:= "/dev/block/bml7"
 BOARD_CUSTOM_RECOVERY_KEYMAPPING		:= ../../device/samsung/bcm21553-common/recovery/bcm21553_recovery_keys.c
@@ -163,4 +163,7 @@ TARGET_SYSTEMIMAGE_USE_SQUISHER			:= true
 
 # Releasetools extras
 TARGET_OTA_EXTRAS_FILE				:= device/samsung/bcm21553-common/releasetools-extras.txt
+
+# zRAM size
+BOARD_ZRAM_SIZE					:= 50331648
 
