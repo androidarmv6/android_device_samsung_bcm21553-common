@@ -135,6 +135,9 @@ WIFI_DRIVER_FW_PATH_P2P				:= "/system/etc/firmware/bcm4330_aps.bin"
 WIFI_DRIVER_MODULE_ARG				:= "firmware_path=/system/etc/firmware/bcm4330_sta.bin nvram_path=/system/etc/firmware/nvram.txt"
 WIFI_DRIVER_MODULE_NAME				:= "bcm4330"
 
+# Wifi AP
+USE_LEGACY_SOFTAP				:= true
+
 # Bluetooth
 BOARD_BLUEDROID_VENDOR_CONF			:= device/samsung/bcm21553-common/bluetooth/vnd_samsung.txt
 BOARD_HAVE_BLUETOOTH				:= true
