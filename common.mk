@@ -188,6 +188,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Wifi interface
 PRODUCT_PROPERTY_OVERRIDES += \
+    wifi.ap.interface=wl0.1 \
+    wifi.interface=eth0 \
     wifi.supplicant_scan_interval=15
 
 # USB / SD card
@@ -208,7 +210,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Note that the only such settings should be the ones that are too low-level to
 # be reachable from resources or other mechanisms.
 PRODUCT_PROPERTY_OVERRIDES += \
-    wifi.interface=eth0 \
     mobiledata.interfaces=pdp0,eth0,gprs,ppp0
 
 # enable Google-specific location features,
