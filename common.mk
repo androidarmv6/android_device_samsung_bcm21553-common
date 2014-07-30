@@ -190,7 +190,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     wifi.ap.interface=wl0.1 \
     wifi.interface=eth0 \
-    wifi.supplicant_scan_interval=15
+    wifi.supplicant_scan_interval=60
 
 # USB / SD card
 PRODUCT_PROPERTY_OVERRIDES += \
