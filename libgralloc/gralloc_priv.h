@@ -37,13 +37,21 @@ struct private_handle_t;
 struct private_module_t {
     gralloc_module_t base;
 
+#ifndef BCM_HARDWARE
+    private_handle_t* framebuffer;
+#else
     struct private_handle_t* framebuffer;
+#endif
     uint32_t flags;
     uint32_t numBuffers;
     uint32_t bufferMask;
     pthread_mutex_t lock;
     buffer_handle_t currentBuffer;
+#ifndef BCM_HARDWARE
+    int pmem_master;
+#else
     int gemem_master;
+#endif
     void* pmem_master_base;
 
     struct fb_var_screeninfo info;
@@ -51,8 +59,10 @@ struct private_module_t {
     float xdpi;
     float ydpi;
     float fps;
-    int 	smem_start;
-    int 	vmem_start;
+#ifdef BCM_HARDWARE
+    int smem_start;
+    int vmem_start;
+#endif
 };
 
 /*****************************************************************************/
@@ -63,7 +73,7 @@ struct private_handle_t : public native_handle {
 struct private_handle_t {
     struct native_handle nativeHandle;
 #endif
-    
+
     enum {
         PRIV_FLAGS_FRAMEBUFFER = 0x00000001
     };
@@ -79,18 +89,24 @@ struct private_handle_t {
     // FIXME: the attributes below should be out-of-line
     int     base;
     int     pid;
-
+#ifdef BCM_HARDWARE
     int     p_addr;
     int     w;
     int     h;
     int     format;
-    int	    alignedw;
+    int     alignedw;
     int     alignedh;
 
     void* handle;
+#endif
 
 #ifdef __cplusplus
+#ifndef BCM_HARDWARE
+    static const int sNumInts = 6;
+#else
     static const int sNumInts = 12;
+#endif
+
     static const int sNumFds = 1;
     static const int sMagic = 0x3141592;
 
@@ -110,7 +126,7 @@ struct private_handle_t {
         const private_handle_t* hnd = (const private_handle_t*)h;
         if (!h || h->version != sizeof(native_handle) ||
                 h->numInts != sNumInts || h->numFds != sNumFds ||
-                hnd->magic != sMagic) 
+                hnd->magic != sMagic)
         {
             ALOGE("invalid gralloc handle (at %p)", h);
             return -EINVAL;

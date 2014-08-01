@@ -44,10 +44,10 @@
 
 // numbers of buffers for page flipping
 #if defined(NO_PAGE_FLIPPING)
-  // page-flipping is buggy on some devices
-  #define NUM_BUFFERS 1
+// page-flipping is buggy on some devices
+#define NUM_BUFFERS 1
 #else
-  #define NUM_BUFFERS 2
+#define NUM_BUFFERS 2
 #endif
 
 
@@ -305,9 +305,10 @@ int mapFrameBufferLocked(struct private_module_t* module)
     }
     module->framebuffer->base = intptr_t(vaddr);
 
+#ifdef BCM_HARDWARE
     module->smem_start = (int)finfo.smem_start;
     module->vmem_start = (int)vaddr;
-
+#endif
     memset(vaddr, 0, fbSize);
     return 0;
 }
@@ -336,11 +337,6 @@ int fb_device_open(hw_module_t const* module, const char* name,
 {
     int status = -EINVAL;
     if (!strcmp(name, GRALLOC_HARDWARE_FB0)) {
-        alloc_device_t* gralloc_device;
-        status = gralloc_open(module, &gralloc_device);
-        if (status < 0)
-            return status;
-
         /* initialize our state here */
         fb_context_t *dev = (fb_context_t*)malloc(sizeof(*dev));
         memset(dev, 0, sizeof(*dev));
@@ -363,7 +359,11 @@ int fb_device_open(hw_module_t const* module, const char* name,
         if (status >= 0) {
             int stride = m->finfo.line_length / (m->info.bits_per_pixel >> 3);
             int format = (m->info.bits_per_pixel == 32)
+#ifdef BCM_HARDWARE
                          ? HAL_PIXEL_FORMAT_BGRA_8888
+#else
+                         ? HAL_PIXEL_FORMAT_RGBX_8888
+#endif
                          : HAL_PIXEL_FORMAT_RGB_565;
 #ifdef NO_32BPP
             format = HAL_PIXEL_FORMAT_RGB_565;
@@ -378,8 +378,10 @@ int fb_device_open(hw_module_t const* module, const char* name,
             const_cast<float&>(dev->device.fps) = m->fps;
             const_cast<int&>(dev->device.minSwapInterval) = 1;
             const_cast<int&>(dev->device.maxSwapInterval) = 1;
-	        const_cast<int&>(dev->device.smem_start) = m->smem_start;
+#ifdef BCM_HARDWARE
+            const_cast<int&>(dev->device.smem_start) = m->smem_start;
             const_cast<int&>(dev->device.vmem_start) = m->vmem_start;
+#endif
             *device = &dev->device.common;
         }
     }

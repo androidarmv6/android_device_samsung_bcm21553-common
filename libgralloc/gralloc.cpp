@@ -37,22 +37,29 @@
 #include "gralloc_priv.h"
 #include "gr.h"
 
+#ifdef BCM_HARDWARE
 #include "ghw_allocator.h"
 #include <linux/android_pmem.h>
 
 using namespace ghw;
-
+#endif
 /*****************************************************************************/
 
 struct gralloc_context_t {
     alloc_device_t  device;
     /* our private data here */
+#ifdef BCM_HARDWARE
     GhwMemAllocator* allocator;
     int gemem_master;
+#endif
 };
 
 static int gralloc_alloc_buffer(alloc_device_t* dev,
+#ifndef BCM_HARDWARE
+        size_t size, int usage, buffer_handle_t* pHandle);
+#else
         size_t size, int usage, buffer_handle_t* pHandle,int w,int h,int format,int stride,int hstride);
+#endif
 
 /*****************************************************************************/
 
@@ -76,19 +83,6 @@ extern int gralloc_register_buffer(gralloc_module_t const* module,
 extern int gralloc_unregister_buffer(gralloc_module_t const* module,
         buffer_handle_t handle);
 
-#ifdef EXYNOS4210_ENHANCEMENTS
-static int gralloc_getphys(gralloc_module_t const* module, buffer_handle_t handle, void** paddr)
-{
-    /*
-    private_handle_t* hnd = (private_handle_t*)handle;
-    paddr[0] = (void*)hnd->paddr;
-    paddr[1] = (void*)(hnd->paddr + hnd->uoffset);
-    paddr[2] = (void*)(hnd->paddr + hnd->uoffset + hnd->voffset);
-    */
-    return 0;
-}
-#endif
-
 /*****************************************************************************/
 
 static struct hw_module_methods_t gralloc_module_methods = {
@@ -110,9 +104,6 @@ struct private_module_t HAL_MODULE_INFO_SYM = {
         unregisterBuffer: gralloc_unregister_buffer,
         lock: gralloc_lock,
         unlock: gralloc_unlock,
-#ifdef EXYNOS4210_ENHANCEMENTS
-        getphys: gralloc_getphys,
-#endif
     },
     framebuffer: 0,
     flags: 0,
@@ -125,7 +116,11 @@ struct private_module_t HAL_MODULE_INFO_SYM = {
 /*****************************************************************************/
 
 static int gralloc_alloc_framebuffer_locked(alloc_device_t* dev,
+#ifndef BCM_HARDWARE
+        size_t size, int usage, buffer_handle_t* pHandle)
+#else
         size_t size, int usage, buffer_handle_t* pHandle,int w,int h,int format,int stride,int hstride)
+#endif
 {
     private_module_t* m = reinterpret_cast<private_module_t*>(
             dev->common.module);
@@ -148,7 +143,11 @@ static int gralloc_alloc_framebuffer_locked(alloc_device_t* dev,
         // we return a regular buffer which will be memcpy'ed to the main
         // screen when post is called.
         int newUsage = (usage & ~GRALLOC_USAGE_HW_FB) | GRALLOC_USAGE_HW_2D;
+#ifndef BCM_HARDWARE
+        return gralloc_alloc_buffer(dev, bufferSize, newUsage, pHandle);
+#else
         return gralloc_alloc_buffer(dev, bufferSize, newUsage, pHandle,w,h,format,stride,hstride);
+#endif
     }
 
     if (bufferMask >= ((1LU<<numBuffers)-1)) {
@@ -158,7 +157,9 @@ static int gralloc_alloc_framebuffer_locked(alloc_device_t* dev,
 
     // create a "fake" handles for it
     intptr_t vaddr = intptr_t(m->framebuffer->base);
+#ifdef BCM_HARDWARE
     unsigned int paddr = m->smem_start;
+#endif
     private_handle_t* hnd = new private_handle_t(dup(m->framebuffer->fd), size,
             private_handle_t::PRIV_FLAGS_FRAMEBUFFER);
 
@@ -169,33 +170,77 @@ static int gralloc_alloc_framebuffer_locked(alloc_device_t* dev,
             break;
         }
         vaddr += bufferSize;
-	paddr += bufferSize;
+#ifdef BCM_HARDWARE
+        paddr += bufferSize;
+#endif
     }
     
     hnd->base = vaddr;
     hnd->offset = vaddr - intptr_t(m->framebuffer->base);
+#ifdef BCM_HARDWARE
     hnd->p_addr = m->smem_start;
     hnd->w = w;
     hnd->h = h;
     hnd->format = format;
     hnd->alignedw = stride;
     hnd->alignedh = hstride;
+#endif
     *pHandle = hnd;
 
     return 0;
 }
 
 static int gralloc_alloc_framebuffer(alloc_device_t* dev,
+#ifndef BCM_HARDWARE
+        size_t size, int usage, buffer_handle_t* pHandle)
+#else
         size_t size, int usage, buffer_handle_t* pHandle,int w,int h,int format,int stride,int hstride)
+#endif
 {
-    private_module_t* m = reinterpret_cast<private_module_t*>(dev->common.module);
+    private_module_t* m = reinterpret_cast<private_module_t*>(
+            dev->common.module);
     pthread_mutex_lock(&m->lock);
+#ifndef BCM_HARDWARE
+    int err = gralloc_alloc_framebuffer_locked(dev, size, usage, pHandle);
+#else
     int err = gralloc_alloc_framebuffer_locked(dev, size, usage, pHandle,w,h,format,stride,hstride);
+#endif
     pthread_mutex_unlock(&m->lock);
     return err;
 }
 
-static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buffer_handle_t* pHandle,int w,int h,int format,int stride, int hstride)
+#ifndef BCM_HARDWARE
+static int gralloc_alloc_buffer(alloc_device_t* dev,
+        size_t size, int usage, buffer_handle_t* pHandle)
+{
+    int err = 0;
+    int fd = -1;
+
+    size = roundUpToPageSize(size);
+    
+    fd = ashmem_create_region("gralloc-buffer", size);
+    if (fd < 0) {
+        ALOGE("couldn't create ashmem (%s)", strerror(-errno));
+        err = -errno;
+    }
+
+    if (err == 0) {
+        private_handle_t* hnd = new private_handle_t(fd, size, 0);
+        gralloc_module_t* module = reinterpret_cast<gralloc_module_t*>(
+                dev->common.module);
+        err = mapBuffer(module, hnd);
+        if (err == 0) {
+            *pHandle = hnd;
+        }
+    }
+    
+    ALOGE_IF(err, "gralloc failed err=%s", strerror(-err));
+    
+    return err;
+}
+#else
+static int gralloc_alloc_buffer(alloc_device_t* dev,
+        size_t size, int usage, buffer_handle_t* pHandle,int w,int h,int format,int stride, int hstride)
 {
     int pgsize = PAGE_SIZE;
     gralloc_context_t* ctx = (gralloc_context_t*)dev;
@@ -208,8 +253,7 @@ static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buf
     int fd_handle = open("/dev/gememalloc", O_RDWR);
     void* v_addr = mmap(0,size,PROT_READ | PROT_WRITE,MAP_SHARED,fd_handle,0);
 
-    if(v_addr == MAP_FAILED)
-    {
+    if(v_addr == MAP_FAILED) {
         ALOGE("gralloc allocation failed for %d\n",size);
         return -1;
     }
@@ -224,7 +268,6 @@ static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buf
 
     //handle->lock(p_addr,v_addr,size);
 
-
     memset(v_addr, 0,size/2);
     // Save the physical address in offset and p_addr of handle
     hnd->base = (int)v_addr;
@@ -236,13 +279,14 @@ static int gralloc_alloc_buffer(alloc_device_t* dev, size_t size, int usage, buf
     hnd->alignedw = stride;
     hnd->alignedh = hstride;
     //hnd->handle = (void*)handle;
-    ALOGV("gralloc_alloc_buffer: Handle Values physical addr %x,	virtual addr: %x", hnd->p_addr, hnd->base + hnd->offset);
+    ALOGV("gralloc_alloc_buffer: Handle Values physical addr %x,    virtual addr: %x", hnd->p_addr, hnd->base + hnd->offset);
 
     close(fd_handle);
 
     *pHandle = hnd;
     return 0;
 }
+#endif
 
 /*****************************************************************************/
 
@@ -257,11 +301,17 @@ static int gralloc_alloc(alloc_device_t* dev,
 
     int align = 4;
     int bpp = 0;
+#ifdef BCM_HARDWARE
     int pad = 1;
     unsigned int tempw	 = (w+31)&0xFFFFFFE0;
     unsigned int temph	 = (h+31)&0xFFFFFFE0;
-
+#endif
     switch (format) {
+#ifdef HTC_3D_SUPPORT   // HTC uses mode 96 for 3D camera
+        case 96:
+            bpp = 4;
+            break;
+#endif
         case HAL_PIXEL_FORMAT_RGBA_8888:
         case HAL_PIXEL_FORMAT_RGBX_8888:
         case HAL_PIXEL_FORMAT_BGRA_8888:
@@ -271,52 +321,69 @@ static int gralloc_alloc(alloc_device_t* dev,
             bpp = 3;
             break;
         case HAL_PIXEL_FORMAT_RGB_565:
-        case HAL_PIXEL_FORMAT_RGBA_5551:
-        case HAL_PIXEL_FORMAT_RGBA_4444:
-	    tempw	 = (w+63)&0xFFFFFFC0;
+        case HAL_PIXEL_FORMAT_RAW_SENSOR:
+#ifdef BCM_HARDWARE
+            tempw = (w+63)&0xFFFFFFC0;
+#endif
             bpp = 2;
             break;
+#ifdef BCM_HARDWARE
         case HAL_PIXEL_FORMAT_YCrCb_420_SP:
         case HAL_PIXEL_FORMAT_YCbCr_420_SP:
         case HAL_PIXEL_FORMAT_YV12:
         case HAL_PIXEL_FORMAT_YCbCr_420_P:
-	    tempw = (w+63)&0xFFFFFFC0;
+            tempw = (w+63)&0xFFFFFFC0;
             bpp = 2;
-	    pad = 0;
+            pad = 0;
             break;
-	case HAL_PIXEL_FORMAT_YCbCr_422_I:
-		tempw	 = (w+63)&0xFFFFFFC0;
-		bpp = 4;
-		pad = 0;
+        case HAL_PIXEL_FORMAT_YCbCr_422_I:
+            tempw = (w+63)&0xFFFFFFC0;
+            bpp = 4;
+            pad = 0;
             break;
+#endif
         default:
             return -EINVAL;
     }
-
+#ifndef BCM_HARDWARE
     size_t bpr = (w*bpp + (align-1)) & ~(align-1);
-	if (!(usage & GRALLOC_USAGE_HW_FB)) {
-	    bpr = (tempw*bpp + (align-1)) & ~(align-1);
-	}
     size = bpr * h;
-	if (!(usage & GRALLOC_USAGE_HW_FB)) {
-	    size = bpr*temph;
-	}
     stride = bpr / bpp;
 
-	if(pad==0) {
-	    tempw = w;
-	    temph = h;
-	    stride = w;
-	}    
+    int err;
+    if (usage & GRALLOC_USAGE_HW_FB) {
+        err = gralloc_alloc_framebuffer(dev, size, usage, pHandle);
+    } else {
+        err = gralloc_alloc_buffer(dev, size, usage, pHandle);
+    }
+#else
+    size_t bpr = (w*bpp + (align-1)) & ~(align-1);
+    if (!(usage & GRALLOC_USAGE_HW_FB)) {
+        bpr = (tempw*bpp + (align-1)) & ~(align-1);
+    }
+    size = bpr * h;
+    if (!(usage & GRALLOC_USAGE_HW_FB)) {
+        size = bpr*temph;
+    }
+    stride = bpr / bpp;
+    if(pad==0) {
+        tempw = w;
+        temph =  h;
+        stride = w;
+    }
+
     int err = 0;
     if (usage & GRALLOC_USAGE_HW_FB) {
         err = gralloc_alloc_framebuffer(dev, size, usage, pHandle,w,h,format,w,h);
     } else {
         err = gralloc_alloc_buffer(dev, size, usage, pHandle,w,h,format,stride,temph);
     }
+#endif
 
     if (err < 0) {
-	ALOGE("%s: err = %x",__FUNCTION__,err);
+#ifdef BCM_HARDWARE
+        ALOGE("%s: err = %x",__FUNCTION__,err);
+#endif
         return err;
     }
 
@@ -324,26 +391,31 @@ static int gralloc_alloc(alloc_device_t* dev,
     return 0;
 }
 
-static int gralloc_free(alloc_device_t* dev, buffer_handle_t handle)
+static int gralloc_free(alloc_device_t* dev,
+        buffer_handle_t handle)
 {
     if (private_handle_t::validate(handle) < 0)
         return -EINVAL;
 
     private_handle_t const* hnd = reinterpret_cast<private_handle_t const*>(handle);
-
     if (hnd->flags & private_handle_t::PRIV_FLAGS_FRAMEBUFFER) {
         // free this buffer
-        private_module_t* m = reinterpret_cast<private_module_t*>(dev->common.module);
+        private_module_t* m = reinterpret_cast<private_module_t*>(
+                dev->common.module);
         const size_t bufferSize = m->finfo.line_length * m->info.yres;
         int index = (hnd->base - m->framebuffer->base) / bufferSize;
-        m->bufferMask &= ~(1<<index);
-    } else {
+        m->bufferMask &= ~(1<<index); 
+    } else { 
+#ifndef BCM_HARDWARE
+        gralloc_module_t* module = reinterpret_cast<gralloc_module_t*>(
+                dev->common.module);
+        terminateBuffer(module, const_cast<private_handle_t*>(hnd));
+#else
         ALOGV("gralloc_free: Free - physical addr: %x   virtual addr: %x", hnd->p_addr, hnd->base);
-
         //GhwMemHandle* handle = (GhwMemHandle*) hnd->handle;
-
-	//handle->release();
-	munmap((void*)hnd->base ,hnd->size);
+        //handle->release();
+        munmap((void*)hnd->base ,hnd->size);
+#endif
     }
 
     close(hnd->fd);
@@ -360,16 +432,19 @@ static int gralloc_close(struct hw_device_t *dev)
         /* TODO: keep a list of all buffer_handle_t created, and free them
          * all here.
          */
+#ifdef BCM_HARDWARE
          delete ctx->allocator;
          ctx->allocator = NULL;
          close(ctx->gemem_master);
          ctx->gemem_master = -1;
-         free(ctx);
+#endif
+        free(ctx);
     }
     return 0;
 }
 
-int gralloc_device_open(const hw_module_t* module, const char* name, hw_device_t** device)
+int gralloc_device_open(const hw_module_t* module, const char* name,
+        hw_device_t** device)
 {
     int status = -EINVAL;
     if (!strcmp(name, GRALLOC_HARDWARE_GPU0)) {
@@ -388,14 +463,14 @@ int gralloc_device_open(const hw_module_t* module, const char* name, hw_device_t
         dev->device.alloc   = gralloc_alloc;
         dev->device.free    = gralloc_free;
 
+#ifdef BCM_HARDWARE
         dev->allocator = GhwMemAllocator::create(GhwMemAllocator::GHW_MEM_ALLOC_RETAIN_ONE, 4*1024*1024, 12);
-
         dev->gemem_master = open("/dev/gememalloc", O_RDWR);
+#endif
 
         *device = &dev->device.common;
         status = 0;
-    } 
-    else {
+    } else {
         status = fb_device_open(module, name, device);
     }
     return status;

@@ -12,32 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 LOCAL_PATH := $(call my-dir)
 
+# HAL module implemenation stored in
+# hw/<OVERLAY_HARDWARE_MODULE_ID>.<ro.product.board>.so
 include $(CLEAR_VARS)
 
-LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
-LOCAL_SHARED_LIBRARIES := liblog libcutils libv3d
-LOCAL_SRC_FILES := gralloc.cpp framebuffer.cpp mapper.cpp
+LOCAL_SHARED_LIBRARIES := liblog libcutils
 
-LOCAL_MODULE_TAGS := optional
+LOCAL_SRC_FILES := 	\
+	gralloc.cpp 	\
+	framebuffer.cpp \
+	mapper.cpp
 	
 LOCAL_MODULE := gralloc.$(TARGET_BOARD_PLATFORM)
 LOCAL_CFLAGS:= -DLOG_TAG=\"gralloc\"
 
-ifeq ($(BOARD_LCD_PARTIAL_UPDATES_ENABLED),true)
-	LOCAL_CFLAGS += -DLCD_PARTIAL_UPDATES_ENABLED=true
+ifeq ($(BOARD_HTC_3D_SUPPORT),true)
+   LOCAL_CFLAGS += -DHTC_3D_SUPPORT
 endif
 
 ifeq ($(BOARD_NO_PAGE_FLIPPING),true)
 	LOCAL_CFLAGS += -DNO_PAGE_FLIPPING
 endif
 
-ifeq ($(BOARD_NO_32BPP),true)
-	LOCAL_CFLAGS += -DNO_32BPP
+ifeq ($(BOARD_USES_BROADCOM_HARDWARE),true)
+	LOCAL_PRELINK_MODULE   := false
+	LOCAL_SHARED_LIBRARIES += libv3d
+	LOCAL_C_INCLUDES       += hardware/broadcom/brcm_usrlib/dag/v3d_library/inc
+	LOCAL_CFLAGS           += -DBCM_HARDWARE -DLCD_PARTIAL_UPDATES_ENABLED=true
 endif
-
-LOCAL_C_INCLUDES += hardware/broadcom/brcm_usrlib/dag/v3d_library/inc
 
 include $(BUILD_SHARED_LIBRARY)

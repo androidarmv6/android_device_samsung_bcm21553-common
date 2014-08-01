@@ -50,14 +50,19 @@ static int gralloc_map(gralloc_module_t const* module,
     private_handle_t* hnd = (private_handle_t*)handle;
     if (!(hnd->flags & private_handle_t::PRIV_FLAGS_FRAMEBUFFER)) {
         size_t size = hnd->size;
-	void* mappedAddress = mmap(0, hnd->size,
+#ifndef BCM_HARDWARE
+        void* mappedAddress = mmap(0, size,
+                PROT_READ|PROT_WRITE, MAP_SHARED, hnd->fd, 0);
+#else
+        void* mappedAddress = mmap(0, hnd->size,
                 PROT_READ|PROT_WRITE, MAP_SHARED, hnd->fd , (unsigned long)hnd->p_addr);
+#endif
         if (mappedAddress == MAP_FAILED) {
             ALOGE("Could not mmap %s", strerror(errno));
             return -errno;
         }
         hnd->base = intptr_t(mappedAddress) + hnd->offset;
-        //LOGD("gralloc_map() succeeded fd=%d, off=%d, size=%d, vaddr=%p",
+        //ALOGD("gralloc_map() succeeded fd=%d, off=%d, size=%d, vaddr=%p",
         //        hnd->fd, hnd->offset, hnd->size, mappedAddress);
     }
     *vaddr = (void*)hnd->base;
@@ -71,7 +76,7 @@ static int gralloc_unmap(gralloc_module_t const* module,
     if (!(hnd->flags & private_handle_t::PRIV_FLAGS_FRAMEBUFFER)) {
         void* base = (void*)hnd->base;
         size_t size = hnd->size;
-        //LOGD("unmapping from %p, size=%d", base, size);
+        //ALOGD("unmapping from %p, size=%d", base, size);
         if (munmap(base, size) < 0) {
             ALOGE("Could not unmap %s", strerror(errno));
         }
@@ -82,7 +87,7 @@ static int gralloc_unmap(gralloc_module_t const* module,
 
 /*****************************************************************************/
 
-static pthread_mutex_t sMapLock = PTHREAD_MUTEX_INITIALIZER; 
+static pthread_mutex_t sMapLock = PTHREAD_MUTEX_INITIALIZER;
 
 /*****************************************************************************/
 
@@ -92,14 +97,48 @@ int gralloc_register_buffer(gralloc_module_t const* module,
     if (private_handle_t::validate(handle) < 0)
         return -EINVAL;
 
-    // if this handle was created in this process, then we keep it as is.
-    int err = 0;
+    // *** WARNING WARNING WARNING ***
+    //
+    // If a buffer handle is passed from the process that allocated it to a
+    // different process, and then back to the allocator process, we will
+    // create a second mapping of the buffer. If the process reads and writes
+    // through both mappings, normal memory ordering guarantees may be
+    // violated, depending on the processor cache implementation*.
+    //
+    // If you are deriving a new gralloc implementation from this code, don't
+    // do this. A "real" gralloc should provide a single reference-counted
+    // mapping for each buffer in a process.
+    //
+    // In the current system, there is one case that needs a buffer to be
+    // registered in the same process that allocated it. The SurfaceFlinger
+    // process acts as the IGraphicBufferAlloc Binder provider, so all gralloc
+    // allocations happen in its process. After returning the buffer handle to
+    // the IGraphicBufferAlloc client, SurfaceFlinger free's its handle to the
+    // buffer (unmapping it from the SurfaceFlinger process). If
+    // SurfaceFlinger later acts as the producer end of the buffer queue the
+    // buffer belongs to, it will get a new handle to the buffer in response
+    // to IGraphicBufferProducer::requestBuffer(). Like any buffer handle
+    // received through Binder, the SurfaceFlinger process will register it.
+    // Since it already freed its original handle, it will only end up with
+    // one mapping to the buffer and there will be no problem.
+    //
+    // Currently SurfaceFlinger only acts as a buffer producer for a remote
+    // consumer when taking screenshots and when using virtual displays.
+    //
+    // Eventually, each application should be allowed to make its own gralloc
+    // allocations, solving the problem. Also, this ashmem-based gralloc
+    // should go away, replaced with a real ion-based gralloc.
+    //
+    // * Specifically, associative virtually-indexed caches are likely to have
+    //   problems. Most modern L1 caches fit that description.
+
     private_handle_t* hnd = (private_handle_t*)handle;
-    if (hnd->pid != getpid()) {
-        void *vaddr;
-        err = gralloc_map(module, handle, &vaddr);
-    }
-    return err;
+    ALOGD_IF(hnd->pid == getpid(),
+            "Registering a buffer in the process that created it. "
+            "This may cause memory ordering problems.");
+
+    void *vaddr;
+    return gralloc_map(module, handle, &vaddr);
 }
 
 int gralloc_unregister_buffer(gralloc_module_t const* module,
@@ -108,13 +147,10 @@ int gralloc_unregister_buffer(gralloc_module_t const* module,
     if (private_handle_t::validate(handle) < 0)
         return -EINVAL;
 
-    // never unmap buffers that were created in this process
     private_handle_t* hnd = (private_handle_t*)handle;
-    if (hnd->pid != getpid()) {
-        if (hnd->base) {
-            gralloc_unmap(module, handle);
-        }
-    }
+    if (hnd->base)
+        gralloc_unmap(module, handle);
+
     return 0;
 }
 
@@ -124,6 +160,19 @@ int mapBuffer(gralloc_module_t const* module,
     void* vaddr;
     return gralloc_map(module, hnd, &vaddr);
 }
+
+#ifndef BCM_HARDWARE
+int terminateBuffer(gralloc_module_t const* module,
+        private_handle_t* hnd)
+{
+    if (hnd->base) {
+        // this buffer was mapped, unmap it now
+        gralloc_unmap(module, hnd);
+    }
+
+    return 0;
+}
+#endif
 
 int gralloc_lock(gralloc_module_t const* module,
         buffer_handle_t handle, int usage,
@@ -146,7 +195,7 @@ int gralloc_lock(gralloc_module_t const* module,
     return 0;
 }
 
-int gralloc_unlock(gralloc_module_t const* module, 
+int gralloc_unlock(gralloc_module_t const* module,
         buffer_handle_t handle)
 {
     // we're done with a software buffer. nothing to do in this
