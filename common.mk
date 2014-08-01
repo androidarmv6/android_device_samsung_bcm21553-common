@@ -149,8 +149,7 @@ PRODUCT_PROPERTY_OVERRIDES := \
 # Graphics properties
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.hwui.render_dirty_regions=false \
-    persist.sys.force_highendgfx=true \
-    persist.sys.prefer_16bpp=0 \
+    persist.sys.prefer_16bpp=1 \
     ro.opengles.surface.rgba8888=true\
     ro.systemui.use_gl_wallpaper=0
 
