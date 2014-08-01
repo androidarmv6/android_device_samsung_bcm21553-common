@@ -12,26 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 LOCAL_PATH := $(call my-dir)
 
+# HAL module implemenation stored in
+# hw/<OVERLAY_HARDWARE_MODULE_ID>.<ro.product.board>.so
 include $(CLEAR_VARS)
 
-LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
-LOCAL_SHARED_LIBRARIES := liblog libEGL libc libGLESv1_CM libv3d
+LOCAL_SHARED_LIBRARIES := liblog libEGL
 LOCAL_SRC_FILES := hwcomposer.cpp
-
-LOCAL_MODULE_TAGS := optional
-
-LOCAL_C_INCLUDES += \
-		device/samsung/bcm21553-common/libgralloc \
-		hardware/broadcom/brcm_usrlib/dag/v3d_library/inc \
-		hardware/common/opencore/codec/include 
-
-LOCAL_CFLAGS += -DDIRECT_RENDERING
-
 LOCAL_MODULE := hwcomposer.$(TARGET_BOARD_PLATFORM)
 LOCAL_CFLAGS:= -DLOG_TAG=\"hwcomposer\"
-LOCAL_MODULE_TAGS := eng
+LOCAL_MODULE_TAGS := optional
+
+ifeq ($(BOARD_USES_BROADCOM_HARDWARE),true)
+	LOCAL_PRELINK_MODULE := false
+	LOCAL_SHARED_LIBRARIES += libc libGLESv1_CM libv3d
+	LOCAL_CFLAGS += -DBCM_HARDWARE -DDIRECT_RENDERING
+	LOCAL_C_INCLUDES += \
+			device/samsung/bcm21553-common/libgralloc \
+			hardware/broadcom/brcm_usrlib/dag/v3d_library/inc \
+			hardware/common/opencore/codec/include
+endif
 
 include $(BUILD_SHARED_LIBRARY)
