@@ -1,29 +1,30 @@
-on boot
+on property:sys.usb.config=none
+    exec /system/bin/netcfg usb0 down
+    write /proc/brcm_switch 1
+    setprop sys.usb.state ${sys.usb.config}
 
-on property:sys.usb.config=rndis
-    exec /system/bin/ifconfig usb0 21.53.0.1 netmask 255.255.255.0 up
-    exec /system/bin/dnsProxy &
-    write /proc/brcm_switch 3
-    setprop sys.usb.state $sys.usb.config
-
-on property:sys.usb.config=rndis,adb
-    exec /system/bin/ifconfig usb0 21.53.0.1 netmask 255.255.255.0 up
-    exec /system/bin/dnsProxy &
-    write /proc/brcm_switch 3
+on property:sys.usb.config=adb
     start adbd
-    setprop sys.usb.state $sys.usb.config
+    write /proc/brcm_switch 2
+    setprop sys.usb.state ${sys.usb.config}
 
 on property:sys.usb.config=mass_storage
-    write /proc/brcm_switch 2
-    setprop sys.usb.state $sys.usb.config
+    setprop sys.usb.state ${sys.usb.config}
 
 on property:sys.usb.config=mass_storage,adb
-    write /proc/brcm_switch 2
     start adbd
-    setprop sys.usb.state $sys.usb.config
+    write /proc/brcm_switch 2
+    setprop sys.usb.state ${sys.usb.config}
 
-on property:sys.usb.config=rndis,dm
-    exec /system/bin/ifconfig usb0 21.53.0.1 netmask 255.255.255.0 up
-    exec /system/bin/dnsProxy &
+on property:sys.usb.config=rndis
+    exec /system/bin/netcfg usb0 up
     write /proc/brcm_switch 3
-    setprop sys.usb.state $sys.usb.config
+    setprop sys.usb.state ${sys.usb.config}
+
+# note: the legacy usb stack can't enumerate rndis with adb, so we don't try to enable adb
+on property:sys.usb.config=rndis,adb
+    exec /system/bin/netcfg usb0 up
+    write /proc/brcm_switch 3
+    setprop sys.usb.state ${sys.usb.config}
+
+
