@@ -37,6 +37,10 @@ PRODUCT_PACKAGES += \
 	init.recovery.$(SAMSUNG_BOOTLOADER).rc \
 	ueventd.$(SAMSUNG_BOOTLOADER).rc
 
+# Stagefright (OMX)
+PRODUCT_PACKAGES += \
+    libBRCM_omx_core_plugin
+
 # Audio
 PRODUCT_PACKAGES += \
     audio.primary.bcm21553 \
