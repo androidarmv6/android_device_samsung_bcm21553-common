@@ -27,9 +27,6 @@
 #include <binder/IMemory.h>
 #include <fcntl.h>
 #include <linux/ioctl.h>
-#ifdef QCOM_HARDWARE
-#include <linux/msm_mdp.h>
-#endif
 #include <gralloc_priv.h>
 #include <ui/Rect.h>
 #include <ui/GraphicBufferMapper.h>
@@ -138,66 +135,6 @@ camera_device_ops_t camera_ops = {
 
 namespace android {
 
-#ifdef QCOM_HARDWARE
-/* XXX: this _should_ be done with the copybit module
-        TODO: figure out how */
-bool internal_hw_blit(int srcFd, int destFd,
-                         size_t srcOffset, size_t destOffset,
-                         int srcFormat, int destFormat,
-                         int x, int y, int w, int h)
-{
-    bool success = true;
-
-    int fb_fd = open("/dev/graphics/fb0", O_RDWR);
-
-    if (fb_fd < 0) {
-        ALOGE("%s: Error opening frame buffer errno=%d (%s)",
-              __FUNCTION__, errno, strerror(errno));
-        return false;
-    }
-
-    ALOGV("%s: srcFD:%d destFD:%d srcOffset:%#x destOffset:%#x x:%d y:%d w:%d h:%d",
-          __FUNCTION__, srcFd, destFd, srcOffset, destOffset, x, y, w, h);
-
-    struct {
-        uint32_t count;
-        struct mdp_blit_req req[1];
-    } list;
-
-    memset(&list, 0, sizeof(list));
-
-    list.count = 1;
-
-    list.req[0].flags       = 0;
-    list.req[0].alpha       = MDP_ALPHA_NOP;
-    list.req[0].transp_mask = MDP_TRANSP_NOP;
-
-    list.req[0].src.width     = w;
-    list.req[0].src.height    = h;
-    list.req[0].src.offset    = srcOffset;
-    list.req[0].src.memory_id = srcFd;
-    list.req[0].src.format    = srcFormat;
-
-    list.req[0].dst.width     = w;
-    list.req[0].dst.height    = h;
-    list.req[0].dst.offset    = destOffset;
-    list.req[0].dst.memory_id = destFd;
-    list.req[0].dst.format    = destFormat;
-
-    list.req[0].src_rect.x = list.req[0].dst_rect.x = x;
-    list.req[0].src_rect.y = list.req[0].dst_rect.y = y;
-    list.req[0].src_rect.w = list.req[0].dst_rect.w = w;
-    list.req[0].src_rect.h = list.req[0].dst_rect.h = h;
-
-    if (ioctl(fb_fd, MSMFB_BLIT, &list)) {
-       ALOGE("%s: MSMFB_BLIT failed = %d %s",
-            __FUNCTION__, errno, strerror(errno));
-       success = false;
-    }
-    close(fb_fd);
-    return success;
-}
-#else
 bool internal_hw_blit(int srcFd, int destFd,
                          size_t srcOffset, size_t destOffset,
                          int srcFormat, int destFormat,
@@ -205,7 +142,6 @@ bool internal_hw_blit(int srcFd, int destFd,
 {
     return false;
 }
-#endif
 
 void internal_decode_sw(unsigned int* rgb, char* yuv420sp, int width, int height)
 {
@@ -270,13 +206,8 @@ void internal_handle_preview(const sp<IMemory>& dataPtr,
    if (mWindow != NULL && getMemory != NULL) {
       ssize_t  offset;
       size_t   size;
-#ifdef QCOM_HARDWARE
-      int32_t  previewFormat = MDP_Y_CBCR_H2V2;
-      int32_t  destFormat    = MDP_RGBX_8888;
-#else
       int32_t  previewFormat = HAL_PIXEL_FORMAT_YCrCb_420_SP;
       int32_t  destFormat    = HAL_PIXEL_FORMAT_RGBA_8888;
-#endif
 
       status_t retVal;
       sp<IMemoryHeap> mHeap = dataPtr->getMemory(&offset,
