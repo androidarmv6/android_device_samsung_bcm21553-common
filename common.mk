@@ -146,6 +146,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PROPERTY_OVERRIDES := \
     ro.opengles.version=131072
 
+# Dalvik runtime
+PRODUCT_PROPERTY_OVERRIDES += \
+    dalvik.vm.jit.codecachesize=0
+
 # Graphics properties
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.hwui.render_dirty_regions=false \
