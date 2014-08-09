@@ -149,10 +149,12 @@ PRODUCT_PROPERTY_OVERRIDES := \
 # Graphics properties
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.hwui.render_dirty_regions=false \
+    debug.sf.no_hw_vsync=1 \
     persist.sys.prefer_16bpp=1 \
     ro.hwui.layer_cache_size=0 \
-    ro.opengles.surface.rgba8888=true\
-    ro.systemui.use_gl_wallpaper=0
+    ro.opengles.surface.rgba8888=true \
+    ro.systemui.use_gl_wallpaper=0 \
+    ro.zygote.disable_gl_preload=true
 
 ## Graphics density
 ifneq (,$(filter cooperve,$(CM_BUILD)))
