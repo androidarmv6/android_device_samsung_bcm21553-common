@@ -26,6 +26,9 @@ on init
     # media profiles (workaround)
     symlink /system/etc/media_profiles.xml /etc/media_profiles.xml
 
+    # zRAM - see https://source.android.com/devices/low-ram.html
+    write /proc/sys/vm/page-cluster 0
+
 on fs
 
 # mount device partitions

@@ -182,7 +182,6 @@ endif
 
 # Memory
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.disable_zram=1 \
     ro.config.low_ram=true
 
 # Stagefright
