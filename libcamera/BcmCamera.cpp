@@ -593,7 +593,7 @@ extern "C" int camera_device_open(const hw_module_t* module, const char* id,
     if(module && id && hw_device) {
         int cameraId = atoi(id);
         signal(SIGFPE,(*sighandle)); //@nAa: Bad boy doing hacks
-#if LIBCAMERA_DLOPEN
+#if DLOPEN_LIBCAMERA
         void * libcameraHandle = ::dlopen("libcamera.so", RTLD_NOW);
 
         if (libcameraHandle) {
