@@ -27,8 +27,7 @@ $(shell mkdir -p $(TARGET_OUT_INTERMEDIATES)/SHARED_LIBRARIES/libcamera_intermed
 $(shell touch $(TARGET_OUT_INTERMEDIATES)/SHARED_LIBRARIES/libcamera_intermediates/export_includes)
 DLOPEN_LIBCAMERA	:= 1
 LOCAL_SRC_FILES		:= BcmCamera.cpp
-#LOCAL_SHARED_LIBRARIES	+= libcamera
-LOCAL_LDFLAGS		+= -Lvendor/samsung/$(TARGET_DEVICE)/proprietary/lib -lcamera
+LOCAL_SHARED_LIBRARIES	+= libcamera
 LOCAL_CFLAGS		+= -DDLOPEN_LIBCAMERA=$(DLOPEN_LIBCAMERA)
 
 ## Can be raised to 6 to improve framerate, at the cost of allocating
