@@ -208,7 +208,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.ril.gprsclass=10 \
     ro.ril.hsxpa=1 \
     ro.telephony.call_ring.delay=0 \
-    ro.telephony.default_network=0
+    ro.telephony.default_network=0 \
+    ro.telephony.ril.v3=facilitylock
 
 # Wifi interface
 PRODUCT_PROPERTY_OVERRIDES += \
