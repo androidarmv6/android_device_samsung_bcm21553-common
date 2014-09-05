@@ -66,7 +66,6 @@ TARGET_BOOTANIMATION_TEXTURE_CACHE		:= true
 # Platform
 TARGET_BOARD_PLATFORM				:= bcm21553
 TARGET_ARCH					:= arm
-TARGET_ARCH_LOWMEM				:= true
 TARGET_ARCH_VARIANT				:= armv6-vfp
 TARGET_CPU_ABI					:= armeabi
 TARGET_CPU_ABI2					:= armeabi-v6l
