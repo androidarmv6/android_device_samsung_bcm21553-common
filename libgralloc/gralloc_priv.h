@@ -29,6 +29,13 @@
 
 #include <linux/fb.h>
 
+#ifdef BCM_HARDWARE
+enum {
+    HAL_PIXEL_FORMAT_YCbCr_420_SP       = 0x15,
+    HAL_PIXEL_FORMAT_YCbCr_420_P        = 0x17,
+};
+#endif
+
 /*****************************************************************************/
 
 struct private_module_t;
