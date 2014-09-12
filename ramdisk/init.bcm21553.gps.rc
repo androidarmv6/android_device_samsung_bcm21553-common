@@ -1,8 +1,3 @@
-on init
-
-# gps config (workaround)
-    symlink /system/etc/gps.conf /etc/gps.conf
-
 on post-fs-data
 
 # delete old sockets

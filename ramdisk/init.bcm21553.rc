@@ -6,6 +6,11 @@ import init.bcm21553.swapart.rc
 import init.bcm21553.usb.rc
 import init.bcm21553.wifi.rc
 
+on early-init
+    # remove /etc/recovery.fstab to fix /system/etc compatibility symlink
+    rm /etc/recovery.fstab
+    rmdir /etc
+
 on init
 
     # sdcard
@@ -19,12 +24,6 @@ on init
     # sd-ext
     mkdir /sd-ext 0771 system system
     export SD_EXT_DIRECTORY /sd-ext
-
-    # media codecs (workaround)
-    symlink /system/etc/media_codecs.xml /etc/media_codecs.xml
-
-    # media profiles (workaround)
-    symlink /system/etc/media_profiles.xml /etc/media_profiles.xml
 
     # zRAM - see https://source.android.com/devices/low-ram.html
     write /proc/sys/vm/page-cluster 0
