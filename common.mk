@@ -184,6 +184,10 @@ endif
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.config.low_ram=true
 
+# Reduce background apps limit to 12 on low-tier devices
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.sys.fw.bg_apps_limit=12
+
 # Set max background services
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.config.max_starting_bg=6
