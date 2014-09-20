@@ -184,6 +184,10 @@ endif
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.config.low_ram=true
 
+# Set max background services
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.config.max_starting_bg=8
+
 # Stagefright
 PRODUCT_PROPERTY_OVERRIDES += \
     media.stagefright.enable-player=true \
