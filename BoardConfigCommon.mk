@@ -35,7 +35,6 @@ TARGET_NO_RADIOIMAGE				:= true
 MINIGZIP					:= $(shell which lzma)
 
 # Kernel source
-TARGET_KERNEL_CUSTOM_TOOLCHAIN			:= arm-eabi-4.4.3
 TARGET_KERNEL_SOURCE				:= kernel/samsung/bcm21553-common
 
 # Recovery
