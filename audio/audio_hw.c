@@ -41,7 +41,7 @@
 
 #define PCM_CARD 0
 #define PCM_DEVICE 0
-#define PCM_DEVICE_SCO 2
+#define PCM_DEVICE_SCO 0
 
 #define MIXER_CARD 0
 
@@ -62,7 +62,6 @@
 #define PCG_IOCTL_SETMODEAPP 112
 #define PCG_IOCTL_SETVOL 103
 #define PCG_IOCTL_SETEXTPAVOL 105
-#define TESTMODE_SYSFS "/sys/devices/platform/brcm_alsa_device/sound/card0/controlC0/BrcmAud_DrvTest"
 
 /* minimum sleep time in out_write() when write threshold is not reached */
 #define MIN_WRITE_SLEEP_US 2000
@@ -114,10 +113,8 @@ struct audio_device {
     struct audio_route *ar;
     int orientation;
     bool screen_off;
-    int current_device;
-    int requested_device;
-    bool pcm_needs_routing;
-    bool speaker_initialized;
+    int audiomode;
+    int subdevice;
     float volume_scale;
     bool extamp_volume;
 
@@ -181,8 +178,6 @@ static int get_next_buffer(struct resampler_buffer_provider *buffer_provider,
                                    struct resampler_buffer* buffer);
 static void release_buffer(struct resampler_buffer_provider *buffer_provider,
                                   struct resampler_buffer* buffer);
-static void select_devices(struct audio_device *adev);
-static void select_pcm_devices(struct audio_device *adev);
 
 /*
  * NOTE: when multiple mutexes have to be acquired, always take the
@@ -192,23 +187,12 @@ static void select_pcm_devices(struct audio_device *adev);
 
 /* Helper functions */
 
-void store_data(const char *filepath, const char *data)
-{
-    FILE *fp = fopen(filepath, "ab");
-    if (fp != NULL)
-    {
-        fputs(data, fp);
-        fclose(fp);
-    }
-}
-
-int select_modeapp(int audiomode, int audioapp)
+int select_modeapp(struct audio_device *adev)
 {
    int ret = 0;
    int fd;
-   int buf[2];
-   buf[0]=audiomode;
-   buf[1]=audioapp;
+   int call_on = adev->mode & AUDIO_MODE_IN_CALL;
+   int buf[2] = {adev->audiomode, call_on ? 1 : 2}; // audioapp profile: 0 = voice call, 1 = voice call (WB), 2 = playback
 
    fd = open(PCG_IOCTL_DEVICE, O_RDWR);
    if (fd < 0)
@@ -242,134 +226,68 @@ int select_volume(int volume, int voltype)
    return ret;
 }
 
-static void select_mode(struct audio_device *adev)
-{
-    if (adev->mode == AUDIO_MODE_IN_CALL) {
-        ALOGV("Enable telephony");
-        store_data(TESTMODE_SYSFS, "3 4 0 0 0");
-    } else {
-        ALOGV("Disable telephony");
-        store_data(TESTMODE_SYSFS, "3 5 0 0 0");
-        /* Set modeapp profile back to default */
-        select_modeapp(4, 2);
-    }
-}
-
 static void select_devices(struct audio_device *adev)
 {
     int earpiece_on;
     int headphone_on;
     int speaker_on;
-    int docked;
     int call_on;
-
-    if (!adev->speaker_initialized) {
-        ALOGV("PCM ROUTE INIT");
-        adev->current_device = -1;
-        audio_route_reset(adev->ar);
-        audio_route_apply_and_update_path(adev->ar, "defaults");
-    }
+    int sco_on;
+    int a2dp_on;
 
     call_on = adev->mode & AUDIO_MODE_IN_CALL;
     earpiece_on = adev->out_device & AUDIO_DEVICE_OUT_EARPIECE;
     headphone_on = adev->out_device & (AUDIO_DEVICE_OUT_WIRED_HEADSET |
                                     AUDIO_DEVICE_OUT_WIRED_HEADPHONE);
     speaker_on = adev->out_device & AUDIO_DEVICE_OUT_SPEAKER;
-    docked = adev->out_device & AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET;
+    sco_on = adev->out_device & AUDIO_DEVICE_OUT_ALL_SCO;
+    a2dp_on = adev->out_device & AUDIO_DEVICE_OUT_ALL_A2DP;
 
-    /* BUG: sometimes the speaker and headphone are detected together,
-     *      so make sure that headphone will override the speaker
-     */
+    audio_route_reset(adev->ar);
 
     if (speaker_on) {
-        adev->requested_device = AUDIO_DEVICE_OUT_SPEAKER;
+        audio_route_apply_path(adev->ar, "speaker");
         adev->extamp_volume = 0;  // modeapp 7,0 does not use the extamp path
         adev->volume_scale = 5.5; // max: 18
-    }
-    if (headphone_on) {
-        adev->requested_device = AUDIO_DEVICE_OUT_WIRED_HEADSET;
-        adev->extamp_volume = 0;
-        adev->volume_scale = 5.5; // max: 18
+        adev->audiomode = 4;
+        adev->subdevice = 0;
     }
     if (earpiece_on) {
-        adev->requested_device = AUDIO_DEVICE_OUT_EARPIECE;
+        audio_route_apply_path(adev->ar, "earpiece");
         adev->extamp_volume = 0;
         adev->volume_scale = 5.5; // max: 18
+        adev->audiomode = 0;
+        adev->subdevice = 2;
+    }
+    if (headphone_on) {
+        audio_route_apply_path(adev->ar, "headset");
+        adev->extamp_volume = 0;
+        adev->volume_scale = 5.5; // max: 18
+        adev->audiomode = 1;
+        adev->subdevice = 4;
+    }
+    if (sco_on || a2dp_on) {
+        audio_route_apply_path(adev->ar, "sco");
+        adev->extamp_volume = 0;
+        adev->volume_scale = 5.5; // max: 18
+        adev->audiomode = 3;
+        adev->subdevice = 6;
     }
     if (call_on)
-        audio_route_apply_and_update_path(adev->ar, "main-mic");
-    if (docked)
-        audio_route_apply_and_update_path(adev->ar, "dock");
+        audio_route_apply_path(adev->ar, "main-mic");
 
-    ALOGD("call=%c, earpiece=%c hp=%c speaker=%c dock=%c", call_on ? 'y' : 'n', earpiece_on ? 'y' : 'n', headphone_on ? 'y' : 'n',
-          speaker_on ? 'y' : 'n', docked ? 'y' : 'n');
-    ALOGV("current device=%d, requested device=%d", adev->current_device, adev->requested_device);
+    audio_route_update_mixer(adev->ar);
 
-    /* If necessary, signal that the PCM route needs to be refreshed */
-    if (adev->requested_device != adev->current_device) {
-        adev->pcm_needs_routing = true;
-    }
+    select_modeapp(adev);
 
-    /* Always trigger routing if in-call */
-    if (call_on)
-        select_pcm_devices(adev);
-}
-
-static void select_pcm_devices(struct audio_device *adev)
-{
-    int call_on = adev->mode & AUDIO_MODE_IN_CALL;
-
-    /* Toggle the speaker on/off in order to gain routing control */
-    if (adev->current_device == -1) {
-        audio_route_apply_and_update_path(adev->ar, "speaker");
-        audio_route_apply_and_update_path(adev->ar, "speaker-off");
-        adev->speaker_initialized = true;
-    }
-
-    /* Disable any active routes */
-    if (adev->current_device != -1) {
-        if (adev->current_device == AUDIO_DEVICE_OUT_EARPIECE) {
-            audio_route_apply_and_update_path(adev->ar, "earpiece-off");
-        } else if (adev->current_device == AUDIO_DEVICE_OUT_WIRED_HEADSET) {
-            audio_route_apply_and_update_path(adev->ar, "headset-off");
-        } else if (adev->current_device == AUDIO_DEVICE_OUT_SPEAKER) {
-            audio_route_apply_and_update_path(adev->ar, "speaker-off");
-        } else {
-            ALOGE("Error: could not disable audio route for device %d", adev->current_device);
-            return;
-        }
-    }
-
-    /* Enable the desired route */
-    if (adev->requested_device == AUDIO_DEVICE_OUT_EARPIECE) {
-        audio_route_apply_and_update_path(adev->ar, "earpiece");
-        if (call_on) { select_modeapp(0, 0); }
-    } else if (adev->requested_device == AUDIO_DEVICE_OUT_WIRED_HEADSET) {
-        audio_route_apply_and_update_path(adev->ar, "headset");
-        if (call_on) { select_modeapp(1, 0); }
-    } else if (adev->requested_device == AUDIO_DEVICE_OUT_SPEAKER) {
-        audio_route_apply_and_update_path(adev->ar, "speaker");
-        if (call_on) { select_modeapp(7, 0); } // 4, 0 is the extamp path, but has more distortion
-    } else {
-        ALOGE("Error: could not enable audio route for device %d", adev->current_device);
-        return;
-    }
-
-    adev->current_device = adev->requested_device;
-    adev->pcm_needs_routing = false;
-    ALOGV("select_pcm_devices: current device updated to: %d", adev->current_device);
+    ALOGD("call=%c, earpiece=%c hp=%c speaker=%c sco=%c a2dp=%c out_device=%d", call_on ? 'y' : 'n', earpiece_on ? 'y' : 'n', headphone_on ? 'y' : 'n',
+          speaker_on ? 'y' : 'n', sco_on ? 'y' : 'n', a2dp_on ? 'y' : 'n', adev->out_device);
 }
 
 /* must be called with hw device and output stream mutexes locked */
 static void do_out_standby(struct stream_out *out)
 {
     struct audio_device *adev = out->dev;
-
-    /* Once the PCM stream is closed, audio routing is reset */
-    ALOGV("PCM ROUTE DEINIT");
-    adev->current_device = -1;
-    adev->pcm_needs_routing = true;
-    adev->speaker_initialized = false;
 
     if (!out->standby) {
         pcm_close(out->pcm);
@@ -448,7 +366,7 @@ static int start_output_stream(struct stream_out *out)
         pthread_mutex_unlock(&in->lock);
     }
 
-    out->pcm = pcm_open(PCM_CARD, device, PCM_OUT | PCM_NORESTART | PCM_MONOTONIC, out->pcm_config);
+    out->pcm = pcm_open(PCM_CARD, device, adev->subdevice, PCM_OUT | PCM_NORESTART | PCM_MONOTONIC, out->pcm_config);
 
     if (out->pcm && !pcm_is_ready(out->pcm)) {
         ALOGE("pcm_open(out) failed: %s", pcm_get_error(out->pcm));
@@ -516,7 +434,7 @@ static int start_input_stream(struct stream_in *in)
         pthread_mutex_unlock(&out->lock);
     }
 
-    in->pcm = pcm_open(PCM_CARD, device, PCM_IN, in->pcm_config);
+    in->pcm = pcm_open(PCM_CARD, device, 0, PCM_IN, in->pcm_config);
 
     if (in->pcm && !pcm_is_ready(in->pcm)) {
         ALOGE("pcm_open(in) failed: %s", pcm_get_error(in->pcm));
@@ -714,21 +632,12 @@ static int out_set_parameters(struct audio_stream *stream, const char *kvpairs)
     pthread_mutex_lock(&adev->lock);
     if (ret >= 0) {
         val = atoi(value);
-        if (val != 0) {
-            /*
-             * If SCO is turned on/off, we need to put audio into standby
-             * because SCO uses a different PCM.
-             */
-            if ((val & AUDIO_DEVICE_OUT_ALL_SCO) ^
-                    (adev->out_device & AUDIO_DEVICE_OUT_ALL_SCO)) {
-                pthread_mutex_lock(&out->lock);
-                do_out_standby(out);
-                pthread_mutex_unlock(&out->lock);
-            }
+        pthread_mutex_lock(&out->lock);
+        do_out_standby(out);
+        pthread_mutex_unlock(&out->lock);
 
-            adev->out_device = val;
-            select_devices(adev);
-        }
+        adev->out_device = val;
+        select_devices(adev);
     }
     pthread_mutex_unlock(&adev->lock);
 
@@ -900,13 +809,6 @@ static ssize_t out_write(struct audio_stream_out *stream, const void* buffer,
     }
 
     ret = pcm_write(out->pcm, in_buffer, out_frames * frame_size);
-    /* We can only do routing during PCM playback */
-    if (pcm_is_running(out->pcm) && (adev->pcm_needs_routing)) {
-        ALOGV("PCM running and route is needed!");
-        select_pcm_devices(adev);
-        adev->pcm_needs_routing = false;
-    }
-
     if (ret == -EPIPE) {
         /* In case of underrun, don't sleep since we want to catch up asap */
         pthread_mutex_unlock(&out->lock);
@@ -1053,21 +955,12 @@ static int in_set_parameters(struct audio_stream *stream, const char *kvpairs)
     pthread_mutex_lock(&adev->lock);
     if (ret >= 0) {
         val = atoi(value) & ~AUDIO_DEVICE_BIT_IN;
-        if (val != 0) {
-            /*
-             * If SCO is turned on/off, we need to put audio into standby
-             * because SCO uses a different PCM.
-             */
-            if ((val & AUDIO_DEVICE_IN_ALL_SCO) ^
-                    (adev->in_device & AUDIO_DEVICE_IN_ALL_SCO)) {
-                pthread_mutex_lock(&in->lock);
-                do_in_standby(in);
-                pthread_mutex_unlock(&in->lock);
-            }
+        pthread_mutex_lock(&in->lock);
+        do_in_standby(in);
+        pthread_mutex_unlock(&in->lock);
 
-            adev->in_device = val;
-            select_devices(adev);
-        }
+        adev->in_device = val;
+        select_devices(adev);
     }
     pthread_mutex_unlock(&adev->lock);
 
@@ -1316,7 +1209,6 @@ static int adev_set_mode(struct audio_hw_device *dev, audio_mode_t mode)
     pthread_mutex_lock(&adev->lock);
     if (adev->mode != mode) {
         adev->mode = mode;
-        select_mode(adev);
     }
     pthread_mutex_unlock(&adev->lock);
 
