@@ -1,5 +1,8 @@
 /* pcm.c
 **
+** Copyright (c) 2013, The Linux Foundation. All rights reserved.
+** Not a contribution.
+**
 ** Copyright 2011, The Android Open Source Project
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -157,9 +160,9 @@ static void param_init(struct snd_pcm_hw_params *p)
 
 struct pcm {
     int fd;
+    int fd_control;
     unsigned int flags;
     int running:1;
-    int prepared:1;
     int underruns;
     unsigned int buffer_size;
     unsigned int boundary;
@@ -170,6 +173,7 @@ struct pcm {
     struct snd_pcm_sync_ptr *sync_ptr;
     void *mmap_buffer;
     unsigned int noirq_frames_per_msec;
+    int wait_for_avail_min;
 };
 
 unsigned int pcm_get_buffer_size(struct pcm *pcm)
@@ -195,7 +199,7 @@ static int oops(struct pcm *pcm, int e, const char *fmt, ...)
     if (errno)
         snprintf(pcm->error + sz, PCM_ERROR_MAX - sz,
                  ": %s", strerror(e));
-    return -1;
+    return -errno;
 }
 
 static unsigned int pcm_format_to_alsa(enum pcm_format format)
@@ -268,7 +272,10 @@ static int pcm_hw_mmap_status(struct pcm *pcm) {
         pcm->mmap_status = NULL;
         goto mmap_error;
     }
-    pcm->mmap_control->avail_min = 1;
+    if (pcm->flags & PCM_MMAP)
+        pcm->mmap_control->avail_min = pcm->config.avail_min;
+    else
+        pcm->mmap_control->avail_min = 1;
 
     return 0;
 
@@ -279,7 +286,11 @@ mmap_error:
         return -ENOMEM;
     pcm->mmap_status = &pcm->sync_ptr->s.status;
     pcm->mmap_control = &pcm->sync_ptr->c.control;
-    pcm->mmap_control->avail_min = 1;
+    if (pcm->flags & PCM_MMAP)
+        pcm->mmap_control->avail_min = pcm->config.avail_min;
+    else
+        pcm->mmap_control->avail_min = 1;
+
     pcm_sync_ptr(pcm, 0);
 
     return 0;
@@ -344,15 +355,6 @@ static int pcm_mmap_transfer_areas(struct pcm *pcm, char *buf,
     return count;
 }
 
-int pcm_is_running(struct pcm *pcm)
-{
-    if (pcm->mmap_status->state == PCM_STATE_RUNNING) {
-        return 1;
-    }
-
-    return 0;
-}
-
 int pcm_get_htimestamp(struct pcm *pcm, unsigned int *avail,
                        struct timespec *tstamp)
 {
@@ -382,7 +384,9 @@ int pcm_get_htimestamp(struct pcm *pcm, unsigned int *avail,
         frames = hw_ptr + pcm->buffer_size - pcm->mmap_control->appl_ptr;
 
     if (frames < 0)
-        return -1;
+        frames += pcm->boundary;
+    else if (frames > (int)pcm->boundary)
+        frames -= pcm->boundary;
 
     *avail = (unsigned int)frames;
 
@@ -402,16 +406,14 @@ int pcm_write(struct pcm *pcm, const void *data, unsigned int count)
 
     for (;;) {
         if (!pcm->running) {
-            int prepare_error = pcm_prepare(pcm);
-            if (prepare_error)
-                return prepare_error;
+            if (ioctl(pcm->fd, SNDRV_PCM_IOCTL_PREPARE))
+                return oops(pcm, errno, "cannot prepare channel");
             if (ioctl(pcm->fd, SNDRV_PCM_IOCTL_WRITEI_FRAMES, &x))
                 return oops(pcm, errno, "cannot write initial data");
             pcm->running = 1;
             return 0;
         }
         if (ioctl(pcm->fd, SNDRV_PCM_IOCTL_WRITEI_FRAMES, &x)) {
-            pcm->prepared = 0;
             pcm->running = 0;
             if (errno == EPIPE) {
                 /* we failed to make our window -- try to restart if we are
@@ -447,7 +449,6 @@ int pcm_read(struct pcm *pcm, void *data, unsigned int count)
             }
         }
         if (ioctl(pcm->fd, SNDRV_PCM_IOCTL_READI_FRAMES, &x)) {
-            pcm->prepared = 0;
             pcm->running = 0;
             if (errno == EPIPE) {
                     /* we failed to make our window -- try to restart */
@@ -513,12 +514,6 @@ void pcm_params_free(struct pcm_params *pcm_params)
 static int pcm_param_to_alsa(enum pcm_param param)
 {
     switch (param) {
-    case PCM_PARAM_ACCESS:
-        return SNDRV_PCM_HW_PARAM_ACCESS;
-    case PCM_PARAM_FORMAT:
-        return SNDRV_PCM_HW_PARAM_FORMAT;
-    case PCM_PARAM_SUBFORMAT:
-        return SNDRV_PCM_HW_PARAM_SUBFORMAT;
     case PCM_PARAM_SAMPLE_BITS:
         return SNDRV_PCM_HW_PARAM_SAMPLE_BITS;
         break;
@@ -559,23 +554,6 @@ static int pcm_param_to_alsa(enum pcm_param param)
     default:
         return -1;
     }
-}
-
-struct pcm_mask *pcm_params_get_mask(struct pcm_params *pcm_params,
-                                     enum pcm_param param)
-{
-    int p;
-    struct snd_pcm_hw_params *params = (struct snd_pcm_hw_params *)pcm_params;
-    if (params == NULL) {
-        return NULL;
-    }
-
-    p = pcm_param_to_alsa(param);
-    if (p < 0 || !param_is_mask(p)) {
-        return NULL;
-    }
-
-    return (struct pcm_mask *)param_to_mask(params, p);
 }
 
 unsigned int pcm_params_get_min(struct pcm_params *pcm_params,
@@ -624,15 +602,17 @@ int pcm_close(struct pcm *pcm)
 
     if (pcm->fd >= 0)
         close(pcm->fd);
-    pcm->prepared = 0;
+    if (pcm->fd_control >= 0)
+        close(pcm->fd_control);
     pcm->running = 0;
     pcm->buffer_size = 0;
     pcm->fd = -1;
+    pcm->fd_control = -1;
     free(pcm);
     return 0;
 }
 
-struct pcm *pcm_open(unsigned int card, unsigned int device,
+struct pcm *pcm_open(unsigned int card, unsigned int device, unsigned int subdevice,
                      unsigned int flags, struct pcm_config *config)
 {
     struct pcm *pcm;
@@ -640,6 +620,7 @@ struct pcm *pcm_open(unsigned int card, unsigned int device,
     struct snd_pcm_hw_params params;
     struct snd_pcm_sw_params sparams;
     char fn[256];
+    char fn_control[256];
     int rc;
 
     pcm = calloc(1, sizeof(struct pcm));
@@ -648,8 +629,19 @@ struct pcm *pcm_open(unsigned int card, unsigned int device,
 
     pcm->config = *config;
 
+    snprintf(fn_control, sizeof(fn_control), "/dev/snd/controlC%u", card);
     snprintf(fn, sizeof(fn), "/dev/snd/pcmC%uD%u%c", card, device,
              flags & PCM_IN ? 'c' : 'p');
+
+    pcm->fd_control = open(fn_control, O_RDWR);
+    if (pcm->fd_control < 0) {
+        oops(pcm, errno, "cannot open control device '%s'", fn_control);
+        return pcm;
+    }
+
+    if (ioctl(pcm->fd_control, SNDRV_CTL_IOCTL_PCM_PREFER_SUBDEVICE, &subdevice) < 0) {
+        oops(pcm, errno, "cannot set preferred subdevice '%d'", subdevice);
+    }
 
     pcm->flags = flags;
     pcm->fd = open(fn, O_RDWR);
@@ -720,7 +712,6 @@ struct pcm *pcm_open(unsigned int card, unsigned int device,
     memset(&sparams, 0, sizeof(sparams));
     sparams.tstamp_mode = SNDRV_PCM_TSTAMP_ENABLE;
     sparams.period_step = 1;
-    sparams.avail_min = 1;
 
     if (!config->start_threshold) {
         if (pcm->flags & PCM_IN)
@@ -742,6 +733,14 @@ struct pcm *pcm_open(unsigned int card, unsigned int device,
     }
     else
         sparams.stop_threshold = config->stop_threshold;
+
+    if (!pcm->config.avail_min) {
+        if (pcm->flags & PCM_MMAP)
+            pcm->config.avail_min = sparams.avail_min = pcm->config.period_size;
+        else
+            pcm->config.avail_min = sparams.avail_min = 1;
+    } else
+        sparams.avail_min = config->avail_min;
 
     sparams.xfer_align = config->period_size / 2; /* needed for old kernels */
     sparams.silence_size = 0;
@@ -790,23 +789,10 @@ int pcm_is_ready(struct pcm *pcm)
     return pcm->fd >= 0;
 }
 
-int pcm_prepare(struct pcm *pcm)
-{
-    if (pcm->prepared)
-        return 0;
-
-    if (ioctl(pcm->fd, SNDRV_PCM_IOCTL_PREPARE) < 0)
-        return oops(pcm, errno, "cannot prepare channel");
-
-    pcm->prepared = 1;
-    return 0;
-}
-
 int pcm_start(struct pcm *pcm)
 {
-    int prepare_error = pcm_prepare(pcm);
-    if (prepare_error)
-        return prepare_error;
+    if (ioctl(pcm->fd, SNDRV_PCM_IOCTL_PREPARE) < 0)
+        return oops(pcm, errno, "cannot prepare channel");
 
     if (pcm->flags & PCM_MMAP)
 	    pcm_sync_ptr(pcm, 0);
@@ -823,7 +809,6 @@ int pcm_stop(struct pcm *pcm)
     if (ioctl(pcm->fd, SNDRV_PCM_IOCTL_DROP) < 0)
         return oops(pcm, errno, "cannot stop channel");
 
-    pcm->prepared = 0;
     pcm->running = 0;
     return 0;
 }
@@ -921,6 +906,15 @@ int pcm_state(struct pcm *pcm)
     return pcm->mmap_status->state;
 }
 
+int pcm_set_avail_min(struct pcm *pcm, int avail_min)
+{
+    if ((~pcm->flags) & (PCM_MMAP | PCM_NOIRQ))
+        return -ENOSYS;
+
+    pcm->config.avail_min = avail_min;
+    return 0;
+}
+
 int pcm_wait(struct pcm *pcm, int timeout)
 {
     struct pollfd pfd;
@@ -991,29 +985,38 @@ int pcm_mmap_transfer(struct pcm *pcm, const void *buffer, unsigned int bytes)
                     avail);
                 return -errno;
             }
+            pcm->wait_for_avail_min = 0;
         }
 
         /* sleep until we have space to write new frames */
-        if (pcm->running &&
-            (unsigned int)avail < pcm->mmap_control->avail_min) {
-            int time = -1;
+        if (pcm->running) {
+            /* enable waiting for avail_min threshold when less frames than we have to write
+             * are available. */
+            if (!pcm->wait_for_avail_min && (count > (unsigned int)avail))
+                pcm->wait_for_avail_min = 1;
 
-            if (pcm->flags & PCM_NOIRQ)
-                time = (pcm->buffer_size - avail - pcm->mmap_control->avail_min)
-                        / pcm->noirq_frames_per_msec;
+            if (pcm->wait_for_avail_min && (avail < pcm->config.avail_min)) {
+                int time = -1;
 
-            err = pcm_wait(pcm, time);
-            if (err < 0) {
-                pcm->prepared = 0;
-                pcm->running = 0;
-                fprintf(stderr, "wait error: hw 0x%x app 0x%x avail 0x%x\n",
-                    (unsigned int)pcm->mmap_status->hw_ptr,
-                    (unsigned int)pcm->mmap_control->appl_ptr,
-                    avail);
-                pcm->mmap_control->appl_ptr = 0;
-                return err;
+                /* disable waiting for avail_min threshold to allow small amounts of data to be
+                 * written without waiting as long as there is enough room in buffer. */
+                pcm->wait_for_avail_min = 0;
+
+                if (pcm->flags & PCM_NOIRQ)
+                    time = (pcm->config.avail_min - avail) / pcm->noirq_frames_per_msec;
+
+                err = pcm_wait(pcm, time);
+                if (err < 0) {
+                    pcm->running = 0;
+                    oops(pcm, err, "wait error: hw 0x%x app 0x%x avail 0x%x\n",
+                        (unsigned int)pcm->mmap_status->hw_ptr,
+                        (unsigned int)pcm->mmap_control->appl_ptr,
+                        avail);
+                    pcm->mmap_control->appl_ptr = 0;
+                    return err;
+                }
+                continue;
             }
-            continue;
         }
 
         frames = count;
@@ -1054,4 +1057,16 @@ int pcm_mmap_read(struct pcm *pcm, void *data, unsigned int count)
         return -ENOSYS;
 
     return pcm_mmap_transfer(pcm, data, count);
+}
+
+int pcm_ioctl(struct pcm *pcm, int request, ...)
+{
+    va_list ap;
+    void * arg;
+
+    va_start(ap, request);
+    arg = va_arg(ap, void *);
+    va_end(ap);
+
+    return ioctl(pcm->fd, request, arg);
 }
