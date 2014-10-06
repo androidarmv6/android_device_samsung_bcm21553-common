@@ -1,5 +1,8 @@
 /* asoundlib.h
 **
+** Copyright (c) 2013, The Linux Foundation. All rights reserved.
+** Not a contribution.
+**
 ** Copyright 2011, The Android Open Source Project
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -58,9 +61,13 @@ struct pcm;
 #define PCM_MONOTONIC  0x00000008 /* see pcm_get_htimestamp */
 
 /* PCM runtime states */
-#define	PCM_STATE_RUNNING	3
+#define	PCM_STATE_OPEN		0
+#define	PCM_STATE_SETUP		1
+#define	PCM_STATE_PREPARED	2
+#define	PCM_STATE_RUNNING		3
 #define	PCM_STATE_XRUN		4
 #define	PCM_STATE_DRAINING	5
+#define	PCM_STATE_PAUSED		6
 #define	PCM_STATE_SUSPENDED	7
 #define	PCM_STATE_DISCONNECTED	8
 
@@ -72,11 +79,6 @@ enum pcm_format {
     PCM_FORMAT_S24_LE,
 
     PCM_FORMAT_MAX,
-};
-
-/* Bitmask has 256 bits (32 bytes) in asound.h */
-struct pcm_mask {
-    unsigned int bits[32 / sizeof(unsigned int)];
 };
 
 /* Configuration for a stream */
@@ -98,16 +100,17 @@ struct pcm_config {
     unsigned int start_threshold;
     unsigned int stop_threshold;
     unsigned int silence_threshold;
+
+    /* Minimum number of frames available before pcm_mmap_write() will actually
+     * write into the kernel buffer. Only used if the stream is opened in mmap mode
+     * (pcm_open() called with PCM_MMAP flag set).   Use 0 for default.
+     */
+    int avail_min;
 };
 
 /* PCM parameters */
 enum pcm_param
 {
-    /* mask parameters */
-    PCM_PARAM_ACCESS,
-    PCM_PARAM_FORMAT,
-    PCM_PARAM_SUBFORMAT,
-    /* interval parameters */
     PCM_PARAM_SAMPLE_BITS,
     PCM_PARAM_FRAME_BITS,
     PCM_PARAM_CHANNELS,
@@ -136,7 +139,7 @@ enum mixer_ctl_type {
 };
 
 /* Open and close a stream */
-struct pcm *pcm_open(unsigned int card, unsigned int device,
+struct pcm *pcm_open(unsigned int card, unsigned int device, unsigned int subdevice,
                      unsigned int flags, struct pcm_config *config);
 int pcm_close(struct pcm *pcm);
 int pcm_is_ready(struct pcm *pcm);
@@ -145,13 +148,14 @@ int pcm_is_ready(struct pcm *pcm);
 struct pcm_params *pcm_params_get(unsigned int card, unsigned int device,
                                   unsigned int flags);
 void pcm_params_free(struct pcm_params *pcm_params);
-
-struct pcm_mask *pcm_params_get_mask(struct pcm_params *pcm_params,
-        enum pcm_param param);
 unsigned int pcm_params_get_min(struct pcm_params *pcm_params,
                                 enum pcm_param param);
 unsigned int pcm_params_get_max(struct pcm_params *pcm_params,
                                 enum pcm_param param);
+
+/* Set and get config */
+int pcm_get_config(struct pcm *pcm, struct pcm_config *config);
+int pcm_set_config(struct pcm *pcm, struct pcm_config *config);
 
 /* Returns a human readable reason for the last error */
 const char *pcm_get_error(struct pcm *pcm);
@@ -168,7 +172,8 @@ unsigned int pcm_get_buffer_size(struct pcm *pcm);
 unsigned int pcm_frames_to_bytes(struct pcm *pcm, unsigned int frames);
 unsigned int pcm_bytes_to_frames(struct pcm *pcm, unsigned int bytes);
 
-int pcm_is_running(struct pcm *pcm);
+/* Returns the pcm latency in ms */
+unsigned int pcm_get_latency(struct pcm *pcm);
 
 /* Returns available frames in pcm buffer and corresponding time stamp.
  * The clock is CLOCK_MONOTONIC if flag PCM_MONOTONIC was specified in pcm_open,
@@ -197,15 +202,20 @@ int pcm_mmap_begin(struct pcm *pcm, void **areas, unsigned int *offset,
                    unsigned int *frames);
 int pcm_mmap_commit(struct pcm *pcm, unsigned int offset, unsigned int frames);
 
-/* Prepare the PCM substream to be triggerable */
-int pcm_prepare(struct pcm *pcm);
 /* Start and stop a PCM channel that doesn't transfer data */
 int pcm_start(struct pcm *pcm);
 int pcm_stop(struct pcm *pcm);
 
+/* ioctl function for PCM driver */
+int pcm_ioctl(struct pcm *pcm, int request, ...);
+
 /* Interrupt driven API */
 int pcm_wait(struct pcm *pcm, int timeout);
 
+/* Change avail_min after the stream has been opened with no need to stop the stream.
+ * Only accepted if opened with PCM_MMAP and PCM_NOIRQ flags
+ */
+int pcm_set_avail_min(struct pcm *pcm, int avail_min);
 
 /*
  * MIXER API
