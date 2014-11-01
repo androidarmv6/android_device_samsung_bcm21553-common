@@ -17,11 +17,8 @@
  */
 -->
 <resources>
-    <bool name="def_accelerometer_rotation">false</bool>
-    <integer name="def_screen_off_timeout">45000</integer>
-    <integer name="def_lockscreen_sounds_enabled">0</integer>
     <bool name="def_install_non_market_apps">true</bool>
-    <!-- I don't like the click sound that it makes -->
-    <bool name="def_sound_effects_enabled">false</bool>
-    <bool name="def_dtmf_tones_enabled">false</bool>
+    <bool name="def_wifi_on">true</bool>
+    <!-- 0 == never, 1 == only when plugged in, 2 == always -->
+    <integer name="def_wifi_sleep_policy">1</integer>
 </resources>
