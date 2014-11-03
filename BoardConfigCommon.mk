@@ -39,7 +39,11 @@ TARGET_KERNEL_CUSTOM_TOOLCHAIN			:= arm-eabi-4.4.3
 TARGET_KERNEL_SOURCE				:= kernel/samsung/bcm21553-common
 
 # Recovery
-TARGET_RECOVERY_FSTAB				:= device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
+ifneq ($(RECOVERY_VARIANT),twrp)
+	TARGET_RECOVERY_FSTAB			:= device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
+else
+	TARGET_RECOVERY_FSTAB			:= device/samsung/bcm21553-common/ramdisk/twrp.fstab
+endif	
 BOARD_BML_BOOT					:= "/dev/block/bml7"
 BOARD_BML_RECOVERY				:= "/dev/block/bml7"
 BOARD_CUSTOM_RECOVERY_KEYMAPPING		:= ../../device/samsung/bcm21553-common/recovery/bcm21553_recovery_keys.c
@@ -49,6 +53,18 @@ BOARD_HAS_DOWNLOAD_MODE				:= true
 TARGET_RECOVERY_PIXEL_FORMAT			:= BGRA_8888
 TARGET_NO_SEPARATE_RECOVERY			:= true
 TARGET_RECOVERY_LCD_BACKLIGHT_PATH		:= \"/sys/class/backlight/aat1401-backlight/brightness\"
+
+# TWRP
+ifeq ($(RECOVERY_VARIANT),twrp)
+	TW_CUSTOM_CPU_TEMP_PATH := /sys/class/power_supply/battery/batt_temp
+	TW_CUSTOM_POWER_BUTTON := 107
+	TW_EXCLUDE_MTP := true
+	TW_HAS_DOWNLOAD_MODE := true
+	TW_HAS_NO_RECOVERY_PARTITION := true
+	TW_USE_MODEL_HARDWARE_ID_FOR_DEVICE_ID := true
+	TW_NO_REBOOT_BOOTLOADER := true
+	RECOVERY_GRAPHICS_USE_LINELENGTH := true
+endif
 
 # Charger mode
 BOARD_CHARGER_RES				:= device/samsung/bcm21553-common/prebuilt/res/charger
