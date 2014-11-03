@@ -7,8 +7,9 @@ import init.bcm21553.usb.rc
 import init.bcm21553.wifi.rc
 
 on early-init
-    # remove /etc/recovery.fstab to fix /system/etc compatibility symlink
+    # remove contents of /etc to fix /system/etc compatibility symlink
     rm /etc/recovery.fstab
+    rm /etc/mke2fs.conf
     rmdir /etc
 
 on init
