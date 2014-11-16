@@ -67,3 +67,8 @@ service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0
 
 service charger /charger
     class charger
+
+on property:sys.boot_completed=1
+    # Override Kernel Samepage Merging (KSM) values
+    write /sys/kernel/mm/ksm/sleep_millisecs 4000
+    write /sys/kernel/mm/ksm/pages_to_scan 256
