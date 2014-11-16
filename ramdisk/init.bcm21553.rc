@@ -11,6 +11,9 @@ on early-init
     rm /etc/recovery.fstab
     rmdir /etc
 
+    # systrace
+    mount debugfs /sys/kernel/debug /sys/kernel/debug
+
 on init
 
     # sdcard
