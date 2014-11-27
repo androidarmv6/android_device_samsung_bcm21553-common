@@ -42,6 +42,13 @@
 
 /*****************************************************************************/
 
+// Set TARGET_USE_PAN_DISPLAY to true at compile time if the
+// board uses FBIOPAN_DISPLAY to setup page flipping, otherwise
+// default ioctl to do page-flipping is FBIOPUT_VSCREENINFO.
+#ifndef USE_PAN_DISPLAY
+#define USE_PAN_DISPLAY 0
+#endif
+
 // numbers of buffers for page flipping
 #if defined(NO_PAGE_FLIPPING)
 // page-flipping is buggy on some devices
@@ -198,10 +205,15 @@ int mapFrameBufferLocked(struct private_module_t* module)
 
 
     uint32_t flags = PAGE_FLIP;
+#if USE_PAN_DISPLAY
+    if (ioctl(fd, FBIOPAN_DISPLAY, &info) == -1) {
+        ALOGW("FBIOPAN_DISPLAY failed, page flipping not supported");
+#else
     if (ioctl(fd, FBIOPUT_VSCREENINFO, &info) == -1) {
+        ALOGW("FBIOPUT_VSCREENINFO failed, page flipping not supported");
+#endif
         info.yres_virtual = info.yres;
         flags &= ~PAGE_FLIP;
-        ALOGW("FBIOPUT_VSCREENINFO failed, page flipping not supported");
     }
 
     if (info.yres_virtual < info.yres * 2) {
@@ -359,11 +371,7 @@ int fb_device_open(hw_module_t const* module, const char* name,
         if (status >= 0) {
             int stride = m->finfo.line_length / (m->info.bits_per_pixel >> 3);
             int format = (m->info.bits_per_pixel == 32)
-#ifdef BCM_HARDWARE
-                         ? HAL_PIXEL_FORMAT_BGRA_8888
-#else
-                         ? HAL_PIXEL_FORMAT_RGBX_8888
-#endif
+                         ? (m->info.red.offset ? HAL_PIXEL_FORMAT_BGRA_8888 : HAL_PIXEL_FORMAT_RGBX_8888)
                          : HAL_PIXEL_FORMAT_RGB_565;
 #ifdef NO_32BPP
             format = HAL_PIXEL_FORMAT_RGB_565;
