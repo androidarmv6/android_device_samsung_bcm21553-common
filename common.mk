@@ -178,6 +178,7 @@ endif
 
 # Memory
 PRODUCT_PROPERTY_OVERRIDES += \
+    persist.sys.purgeable_assets=1 \
     ro.config.low_ram=true
 
 # Reduce background apps limit to 12 on low-tier devices
