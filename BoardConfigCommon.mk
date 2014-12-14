@@ -21,6 +21,7 @@
 LOCAL_PATH:= $(call my-dir)
 
 # Custom bootimg (recovery merged into boot ramdisk)
+BOARD_CUSTOM_BOOTIMG				:= true
 BOARD_CUSTOM_BOOTIMG_MK				:= device/samsung/bcm21553-common/bcm21553-bootimg.mk
 
 # Kernel
@@ -53,6 +54,7 @@ BOARD_HAS_DOWNLOAD_MODE				:= true
 TARGET_RECOVERY_PIXEL_FORMAT			:= BGRA_8888
 TARGET_NO_SEPARATE_RECOVERY			:= true
 TARGET_RECOVERY_LCD_BACKLIGHT_PATH		:= \"/sys/class/backlight/aat1401-backlight/brightness\"
+TARGET_USERIMAGES_USE_EXT4			:= true
 
 # TWRP
 ifeq ($(RECOVERY_VARIANT),twrp)
@@ -99,6 +101,9 @@ TARGET_SPECIFIC_HEADER_PATH			:= device/samsung/bcm21553-common/include
 BCM21553_HARDWARE				:= true
 BOARD_USES_BROADCOM_HARDWARE			:= true
 COMMON_GLOBAL_CFLAGS				+= -DBCM_HARDWARE
+
+# malloc implementation
+MALLOC_IMPL					:= dlmalloc
 
 # Touchscreen
 BOARD_USE_LEGACY_TOUCHSCREEN			:= true
