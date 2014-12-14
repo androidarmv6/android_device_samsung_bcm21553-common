@@ -1,5 +1,17 @@
 # Extra apps
-app/Exchange2.apk
+app/Calculator/Calculator.apk
+app/DeskClock/DeskClock.apk
+app/Email/Email.apk
+app/Exchange2/Exchange2.apk
+app/LiveWallpapers/LiveWallpapers.apk
+app/LiveWallpapersPicker/LiveWallpapersPicker.apk
+app/OpenWnn/OpenWnn.apk
+priv-app/CMUpdater/CMUpdater.apk
+priv-app/Mms/Mms.apk
+
+lib/libWnnEngDic.so
+lib/libWnnJpnDic.so
+lib/libwnndict.so
 
 # Duplicate audio files (~1MB)
 media/audio/alarms/Argon.ogg

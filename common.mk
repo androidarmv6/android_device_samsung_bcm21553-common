@@ -45,8 +45,8 @@ PRODUCT_PACKAGES += \
     audio.r_submix.default
 
 # Camera
-PRODUCT_PACKAGES += \
-    camera.bcm21553
+#PRODUCT_PACKAGES += \
+#    camera.bcm21553
 
 # Charger
 PRODUCT_PACKAGES += \
@@ -213,13 +213,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
     wifi.interface=eth0 \
     wifi.supplicant_scan_interval=60
 
-# SELinux - we're not ready for enforcing mode yet
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.boot.selinux=permissive
-
 # USB / SD card
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.usb.config=adb,mass_storage \
+    persist.sys.usb.config=mass_storage,adb \
     persist.service.adb.enable=1 \
     ro.vold.umsdirtyratio=20
 

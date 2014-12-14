@@ -16,12 +16,10 @@ echo "Warning: MAC addresses already found."
 fi
 
 # Wait until Samsung's RIL announces MAC addresses
-until [ $(expr length "$WIFIMAC") == 17 ]; do
-WIFIMAC=`getprop ril.wifi_macaddr`
-done
-
-until [ $(expr length "$BTMAC") == 12 ]; do
+until [ $(expr length "$BTMAC") == 12 && $(expr length "$WIFIMAC") == 17 ]; do
 BTMAC=`getprop ril.bt_macaddr`
+WIFIMAC=`getprop ril.wifi_macaddr`
+sleep 2
 done
 
 # Set WiFi MAC address
