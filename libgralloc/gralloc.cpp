@@ -86,31 +86,31 @@ extern int gralloc_unregister_buffer(gralloc_module_t const* module,
 /*****************************************************************************/
 
 static struct hw_module_methods_t gralloc_module_methods = {
-        open: gralloc_device_open
+        .open = gralloc_device_open
 };
 
 struct private_module_t HAL_MODULE_INFO_SYM = {
-    base: {
-        common: {
-            tag: HARDWARE_MODULE_TAG,
-            version_major: 1,
-            version_minor: 0,
-            id: GRALLOC_HARDWARE_MODULE_ID,
-            name: "Graphics Memory Allocator Module",
-            author: "The Android Open Source Project",
-            methods: &gralloc_module_methods
+    .base = {
+        .common = {
+            .tag = HARDWARE_MODULE_TAG,
+            .version_major = 1,
+            .version_minor = 0,
+            .id = GRALLOC_HARDWARE_MODULE_ID,
+            .name = "Graphics Memory Allocator Module",
+            .author = "The Android Open Source Project",
+            .methods = &gralloc_module_methods
         },
-        registerBuffer: gralloc_register_buffer,
-        unregisterBuffer: gralloc_unregister_buffer,
-        lock: gralloc_lock,
-        unlock: gralloc_unlock,
+        .registerBuffer = gralloc_register_buffer,
+        .unregisterBuffer = gralloc_unregister_buffer,
+        .lock = gralloc_lock,
+        .unlock = gralloc_unlock,
     },
-    framebuffer: 0,
-    flags: 0,
-    numBuffers: 0,
-    bufferMask: 0,
-    lock: PTHREAD_MUTEX_INITIALIZER,
-    currentBuffer: 0,
+    .framebuffer = 0,
+    .flags = 0,
+    .numBuffers = 0,
+    .bufferMask = 0,
+    .lock = PTHREAD_MUTEX_INITIALIZER,
+    .currentBuffer = 0,
 };
 
 /*****************************************************************************/
@@ -211,7 +211,7 @@ static int gralloc_alloc_framebuffer(alloc_device_t* dev,
 
 #ifndef BCM_HARDWARE
 static int gralloc_alloc_buffer(alloc_device_t* dev,
-        size_t size, int usage, buffer_handle_t* pHandle)
+        size_t size, int /*usage*/, buffer_handle_t* pHandle)
 {
     int err = 0;
     int fd = -1;
@@ -240,7 +240,7 @@ static int gralloc_alloc_buffer(alloc_device_t* dev,
 }
 #else
 static int gralloc_alloc_buffer(alloc_device_t* dev,
-        size_t size, int usage, buffer_handle_t* pHandle,int w,int h,int format,int stride, int hstride)
+        size_t size, int /*usage*/, buffer_handle_t* pHandle,int w,int h,int format,int stride, int hstride)
 {
     int pgsize = PAGE_SIZE;
     gralloc_context_t* ctx = (gralloc_context_t*)dev;
