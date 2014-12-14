@@ -40,9 +40,9 @@ TARGET_KERNEL_SOURCE				:= kernel/samsung/bcm21553-common
 
 # Recovery
 ifneq ($(RECOVERY_VARIANT),twrp)
-	TARGET_RECOVERY_FSTAB			:= device/samsung/bcm21553-common/ramdisk/fstab.bcm21553
+	TARGET_RECOVERY_FSTAB			:= device/samsung/bcm21553-common/recovery/fstab.cm.bcm21553
 else
-	TARGET_RECOVERY_FSTAB			:= device/samsung/bcm21553-common/ramdisk/twrp.fstab
+	TARGET_RECOVERY_FSTAB			:= device/samsung/bcm21553-common/recovery/fstab.twrp.bcm21553
 endif
 BOARD_BML_BOOT					:= "/dev/block/bml7"
 BOARD_BML_RECOVERY				:= "/dev/block/bml7"
