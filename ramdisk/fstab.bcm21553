@@ -4,9 +4,9 @@
 # http://source.android.com/devices/tech/storage/index.html
 #
 #<src>						<mnt_point>		<type>	<mnt_flags and options>	<fs_mgr_flags>
-system						/system			yaffs2	ro			recoveryonly
-cache						/cache			yaffs2	nosuid,nodev		recoveryonly
-userdata					/data			yaffs2	nosuid,nodev		recoveryonly
+/dev/block/mtdblock8				/system			yaffs2	ro			wait
+/dev/block/mtdblock9				/cache			yaffs2	nosuid,nodev		check,wait
+/dev/block/mtdblock10				/data			yaffs2	nosuid,nodev		check,wait
 /dev/block/mmcblk0				auto			auto	defaults		voldmanaged=sdcard0:auto,noemulatedsd
 /dev/block/mmcblk0p2				/sd-ext			ext4	defaults		recoveryonly
 boot						/boot			mtd	defaults		recoveryonly
