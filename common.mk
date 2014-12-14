@@ -215,7 +215,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # SELinux - we're not ready for enforcing mode yet
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.boot.selinux=permissive
+    ro.boot.selinux=disabled
 
 # USB / SD card
 PRODUCT_PROPERTY_OVERRIDES += \
