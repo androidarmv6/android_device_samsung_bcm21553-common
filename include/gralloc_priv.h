@@ -94,7 +94,7 @@ struct private_handle_t {
     int     offset;
 
     // FIXME: the attributes below should be out-of-line
-    int     base;
+    uint64_t base __attribute__((aligned(8)));
     int     pid;
 #ifdef BCM_HARDWARE
     int     p_addr;
@@ -111,7 +111,6 @@ struct private_handle_t {
     static inline int sNumInts() {
         return (((sizeof(private_handle_t) - sizeof(native_handle_t))/sizeof(int)) - sNumFds);
     }
-
     static const int sNumFds = 1;
     static const int sMagic = 0x3141592;
 
