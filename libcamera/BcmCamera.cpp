@@ -38,7 +38,6 @@
 #include "CameraHardwareInterface.h"
 /* include QCamera Hardware Interface Header*/
 #include "BcmCamera.h"
-//#include "QualcommCameraHardware.h"
 
 extern "C" {
 #include <sys/time.h>
@@ -62,6 +61,7 @@ extern "C" {
 android::sp<android::CameraHardwareInterface> (*LINK_openCameraHardware)(int id);
 int (*LINK_getNumberofCameras)(void);
 void (*LINK_getCameraInfo)(int cameraId, struct camera_info *info);
+void *libcameraHandle;
 #else
 using android::HAL_getCameraInfo;
 using android::HAL_getNumberOfCameras;
@@ -353,7 +353,7 @@ camera_memory_t * internal_generate_client_data(const sp<IMemory> &dataPtr,
    camera_memory_t *clientData = NULL;
    sp<IMemoryHeap> mHeap = dataPtr->getMemory(&offset, &size);
 
-   ALOGV("%s: offset:%#x size:%#x base:%p", __FUNCTION__
+   ALOGV("%s: offset:%#x size:%#x base:%p", __FUNCTION__,
         (unsigned)offset, size, mHeap != NULL ? mHeap->base() : 0);
 
    clientData = reqClientMemory(-1, size, 1, user);
@@ -522,8 +522,10 @@ extern "C" int get_number_of_cameras(void)
 
    ALOGV("get_number_of_cameras:");
 #if DLOPEN_LIBCAMERA
-   void *libcameraHandle = ::dlopen("libcamera.so", RTLD_NOW);
-   ALOGD("HAL_get_number_of_cameras: loading libcamera at %p", libcameraHandle);
+   if (!libcameraHandle) {
+       libcameraHandle = ::dlopen("libcamera.so", RTLD_LAZY);
+   }
+
    if (!libcameraHandle) {
        ALOGE("FATAL ERROR: could not dlopen libcamera.so: %s", dlerror());
    } else {
@@ -533,7 +535,6 @@ extern "C" int get_number_of_cameras(void)
          numCameras = LINK_getNumberofCameras();
          ALOGD("HAL_get_number_of_cameras: numCameras:%d", numCameras);
       }
-      dlclose(libcameraHandle);
    }
 #else
    numCameras = HAL_getNumberOfCameras();
@@ -546,8 +547,10 @@ extern "C" int get_camera_info(int camera_id, struct camera_info *info)
 #if DLOPEN_LIBCAMERA
    bool dynamic = false;
    ALOGV("get_camera_info:");
-   void *libcameraHandle = ::dlopen("libcamera.so", RTLD_NOW);
-   ALOGD("HAL_get_camera_info: loading libcamera at %p", libcameraHandle);
+   if (!libcameraHandle) {
+       libcameraHandle = ::dlopen("libcamera.so", RTLD_LAZY);
+   }
+
    if (!libcameraHandle) {
        ALOGE("FATAL ERROR: could not dlopen libcamera.so: %s", dlerror());
        return EINVAL;
@@ -558,7 +561,6 @@ extern "C" int get_camera_info(int camera_id, struct camera_info *info)
          LINK_getCameraInfo(camera_id, info);
          dynamic = true;
       }
-      dlclose(libcameraHandle);
    }
    if (!dynamic) {
       info->facing      = CAMERA_FACING_BACK;
@@ -593,8 +595,10 @@ extern "C" int camera_device_open(const hw_module_t* module, const char* id,
     if(module && id && hw_device) {
         int cameraId = atoi(id);
         signal(SIGFPE,(*sighandle)); //@nAa: Bad boy doing hacks
-#if LIBCAMERA_DLOPEN
-        void * libcameraHandle = ::dlopen("libcamera.so", RTLD_NOW);
+#if DLOPEN_LIBCAMERA
+        if (!libcameraHandle) {
+            libcameraHandle = ::dlopen("libcamera.so", RTLD_LAZY);
+        }
 
         if (libcameraHandle) {
             ALOGD("%s: loaded libcamera at %p", __FUNCTION__, libcameraHandle);
@@ -613,7 +617,6 @@ extern "C" int camera_device_open(const hw_module_t* module, const char* id,
 
             qCamera = LINK_openCameraHardware(cameraId);
 
-            ::dlclose(libcameraHandle);
 
             device = (camera_device *)malloc(sizeof (struct camera_device));
 
@@ -661,6 +664,14 @@ extern "C" int close_camera_device(hw_device_t* hw_dev)
         free(device);
         rc = 0;
     }
+
+#if DLOPEN_LIBCAMERA && 0
+    if (libcameraHandle) {
+        ::dlclose(libcameraHandle);
+        libcameraHandle = NULL;
+    }
+#endif
+
     ALOGD("%s:--",__FUNCTION__);
     return rc;
 }
