@@ -89,6 +89,7 @@ TARGET_ARCH_LOWMEM				:= true
 TARGET_ARCH_VARIANT				:= armv6-vfp
 TARGET_CPU_ABI					:= armeabi
 TARGET_CPU_ABI2					:= armeabi-v6l
+TARGET_CPU_SMP					:= false
 TARGET_CPU_VARIANT				:= arm11
 TARGET_ARCH_VARIANT_FPU				:= vfp
 TARGET_ARCH_VARIANT_CPU				:= arm1136jf-s
