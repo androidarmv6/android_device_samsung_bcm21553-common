@@ -40,11 +40,6 @@ on fs
 
 # mount device partitions
 
-    mount yaffs2 mtd@system /system
-    mount yaffs2 mtd@system /system ro remount
-    mount yaffs2 mtd@userdata /data nosuid nodev
-    mount yaffs2 mtd@cache /cache nosuid nodev
-
     mount_all /fstab.bcm21553
     swapon_all /fstab.bcm21553
 
