@@ -100,6 +100,9 @@ BCM21553_HARDWARE				:= true
 BOARD_USES_BROADCOM_HARDWARE			:= true
 COMMON_GLOBAL_CFLAGS				+= -DBCM_HARDWARE
 
+# malloc implementation
+MALLOC_IMPL					:= dlmalloc
+
 # Touchscreen
 BOARD_USE_LEGACY_TOUCHSCREEN			:= true
 
