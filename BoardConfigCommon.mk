@@ -187,3 +187,5 @@ TARGET_OTA_EXTRAS_FILE				:= device/samsung/bcm21553-common/releasetools-extras.
 # zRAM size
 BOARD_ZRAM_SIZE					:= 50331648
 
+# SELinux
+POLICYVERS					:= 24
