@@ -18,6 +18,7 @@
 const char CameraParameters::AUTO_EXPOSURE_CENTER_WEIGHTED[] = "center-weighted"; \
 const char CameraParameters::AUTO_EXPOSURE_FRAME_AVG[] = "frame-average"; \
 const char CameraParameters::AUTO_EXPOSURE_SPOT_METERING[] = "spot-metering"; \
+const char CameraParameters::FOCUS_MODE_NORMAL[] = "normal"; \
 const char CameraParameters::ISO_100[] = "ISO100"; \
 const char CameraParameters::ISO_200[] = "ISO200"; \
 const char CameraParameters::ISO_400[] = "ISO400"; \
@@ -36,6 +37,7 @@ int CameraParameters::getMode() const { return 0; }
 static const char AUTO_EXPOSURE_CENTER_WEIGHTED[]; \
 static const char AUTO_EXPOSURE_FRAME_AVG[]; \
 static const char AUTO_EXPOSURE_SPOT_METERING[]; \
+static const char FOCUS_MODE_NORMAL[]; \
 static const char ISO_100[]; \
 static const char ISO_200[]; \
 static const char ISO_400[]; \
