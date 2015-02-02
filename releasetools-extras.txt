@@ -1,5 +1,6 @@
 # Extra apps
 app/Exchange2.apk
+priv-app/CMUpdater.apk
 
 # Duplicate audio files (~1MB)
 media/audio/alarms/Argon.ogg
