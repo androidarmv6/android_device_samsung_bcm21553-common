@@ -32,7 +32,7 @@ TARGET_NO_BOOTLOADER				:= true
 TARGET_NO_RADIOIMAGE				:= true
 
 # Kernel ramdisk compression tool
-MINIGZIP					:= $(shell which lzma)
+MINIGZIP					:= $(shell    which lzma)
 
 # Kernel source
 TARGET_KERNEL_CUSTOM_TOOLCHAIN			:= arm-eabi-4.4.3
