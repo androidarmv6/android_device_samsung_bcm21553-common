@@ -1,5 +1,7 @@
 Copyright 2014 - The CyanogenMod Project
 
+A better one
+
 Common Device configuration for Samsung BCM21553 Devices
 
 TO-DO:
@@ -8,3 +10,9 @@ TO-DO:
 - Camera Library
 - Audio Library
 - Optimize HGL 3D Library
+
+DIY
+to compile this rom you need to sync the following sources:
+- x 
+- y
+- z
